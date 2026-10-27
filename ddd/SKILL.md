@@ -1,6 +1,6 @@
 ---
 name: ddd
-description: Build and change apps where a folder of linked markdown specs is the source of truth and code is generated from it. Use this whenever the user wants to start an app "spec-first" or "doc-driven", has a docs/ folder of feature, page, data or component docs, edits a spec doc and wants the app updated, asks what changed in the specs, wants to plan features, phases or a roadmap and work through them one at a time, wants to plan a change to a feature that's already built, or asks for any change to an app that already has a docs/ folder — even a small code tweak, because the docs must be updated first. Also use when a non-coder wants to understand or change how their app works by reading and editing docs instead of code.
+description: Build and change apps where a folder of linked markdown specs is the source of truth and code is generated from it. Use this whenever the user wants to start an app "spec-first" or "doc-driven", has a docs/ folder of feature, page, data or component docs, edits a spec doc and wants the app updated, asks what changed in the specs, wants to plan features, phases or a roadmap and work through them one at a time, wants to plan a change to a feature that's already built, has a docs/plan/ folder, or asks for any change to an app that already has a docs/ folder — even a small code tweak, because the docs must be updated first. Also use when a non-coder wants to understand or change how their app works by reading and editing docs instead of code.
 ---
 
 # Doc-driven development
@@ -14,7 +14,7 @@ Why this works: most people building with AI no longer read the code, but they d
 ## Invoking it as /ddd
 
 - `/ddd` alone: run the status check (below) and report in two or three lines what changed in `docs/` since the last build and what it affects. If there's no `docs/` folder yet, offer to start a new app.
-- `/ddd plan <idea or scope>`: plan features without building them. Write feature docs with `status: planned` and lay them out in phases in `docs/roadmap.md`.
+- `/ddd plan <idea or scope>`: plan without building. Write plan docs in `docs/plan/` and lay them out in phases in `docs/roadmap.md`; loose ideas go in `docs/plan/ideas/`.
 - `/ddd next`: pick up the next roadmap item and take it through to done (see "Working through the roadmap").
 - `/ddd roadmap`: show progress per phase and anything out of sync.
 - `/ddd <request>`: treat the text as the request (start an app, apply a doc edit, make a change) and follow the matching workflow.
@@ -32,65 +32,68 @@ If the project already has a `docs/` folder used for something else (a README si
 ```
 docs/
 ├── app.md            # what the app is, who uses it, roles, glossary
-├── roadmap.md        # phases and the order features get built in
+├── roadmap.md        # phases and the order plans get built in
 ├── data/             # what the app remembers: one doc per entity
 ├── features/         # what the app does: one doc per capability
-├── changes/          # planned changes to features that are already built
 ├── pages/            # what people see: one doc per screen
 ├── components/       # reusable UI pieces used on several pages
 ├── integrations/     # what it talks to: auth, email, payments, APIs
+├── plan/             # committed work that isn't built yet
+│   ├── ideas/        # loose ideas, not committed
+│   └── done/         # plans that were built and merged, kept as a record
 └── .tech/            # technical decisions: stack, structure, conventions
 ```
 
 Each folder answers one question, so a person always knows where to look. Add folders only when a new kind of question appears (for example `jobs/` for scheduled work).
 
+**Where a doc lives says what stage it's in.** Everything outside `plan/` describes the app as it is built: a reader opening `features/rsvp.md` can trust that every rule in it is live. Everything in `plan/` is not built yet. Someone browsing the tree sees what exists and what's coming without opening a file.
+
 Templates for every doc type are in `references/templates.md`. Read it before creating the first docs in a project or any doc of a type you haven't written yet in this session.
 
-## Planning: feature status and the roadmap
+## Planning: the plan folder and the roadmap
 
-The docs describe what the app does today *and* what it will do. Two things keep those apart:
+| Stage | Where | What it is |
+| --- | --- | --- |
+| Idea | `plan/ideas/` | Worth remembering, not committed to. Can be a title and a few lines. Never on the roadmap. |
+| Planned | `plan/` | Committed to, and on the roadmap. Complete enough to build from: rules and acceptance criteria written. `status: planned`. |
+| In progress | `plan/` | Being built now. `status: in-progress`. At most one at a time unless the person asks otherwise. |
+| Built | `features/`, `data/`, `pages/`, … | Live. Built docs carry no status. |
+| Record | `plan/done/` | A plan that was built and merged into other docs, kept so people can see why a rule changed. |
 
-- **Each feature doc has a `status`** in its frontmatter. It's the source of truth for where that feature stands:
+Planned work never goes into a built doc. A field a planned feature will add stays in that plan until it's built; a rule a change will alter stays as it is in `features/` until then. Two documents, one for today and one for later, are easier to read than one doc that mixes both.
 
-  | Status | Meaning |
-  | --- | --- |
-  | `idea` | Worth remembering; not committed to. Can be a few lines. |
-  | `planned` | Committed to. The doc is complete enough to build from: rules and acceptance criteria written. |
-  | `in-progress` | Being built now. At most one at a time unless the person asks otherwise. |
-  | `done` | Built, and its acceptance-criteria tests pass. |
+### Three kinds of plan
 
-  Data, page, component and integration docs don't carry a status. Planned work doesn't go in them either; it lives in the planned feature or change doc (next section) and is written into them when it's built.
+All three live in `plan/` (or `plan/ideas/` while they're ideas). The frontmatter says which:
 
-- **`docs/roadmap.md` holds the order.** Each `##` heading is a phase, with a one-line goal. Under it, a checklist in priority order: feature links (`- [ ] [[features/reminders]]`) or plain tasks with no feature doc (`- [ ] Set up a sending domain for email`). A `## Ideas` section at the end holds unscheduled items. The checklist mirrors the statuses: checked means `done`. The template is in `references/templates.md`.
+- **A new feature** (`type: feature`): a capability that doesn't exist yet, like `plan/reminders.md`. When built, the file **moves** to `features/`.
+- **An extension** (`type: feature`, `extends: [features/rsvp]`): a new capability that builds on a built feature, like `plan/plus-ones.md`. It describes the new behavior plus a `## Changes to <target>` section listing what will change in the docs it extends. When built, it's **merged** into those docs if it amounts to a few rules; if it has enough substance to stand alone (its own rules, pages and criteria), it moves to `features/` instead and the target links to it.
+- **A change** (`type: change`, `changes: [features/rsvp]`): an adjustment to existing behavior that isn't a capability of its own, like `plan/close-replies-early.md`. It says what's true now and what will be true after. When built, it's **merged** into its targets.
 
-Why two places: a status belongs to the feature and travels with it; order and phases are a plan across features and change more often. Keeping each fact in one place means neither goes stale. Whenever you change a feature's status, update its checkbox in the same edit.
+Prefer an extension when the person would name the thing ("plus-ones"); prefer a change when they'd describe it as an adjustment ("close replies a day earlier").
 
-The script checks both: `roadmap` shows progress per phase and anything out of sync (a checked item that isn't done, a planned feature missing from the roadmap, an unknown status). `next` gives the item to work on: an `in-progress` one if there is one, otherwise the first unchecked item in the first scheduled phase.
+**Merging** means writing the new behavior into the docs it targets, so they describe the app as now built. Those edits are the doc diff reviewers read. The plan then moves to `plan/done/`, with a first line `Merged into [[features/rsvp]].`, and loses its `status`.
+
+**Moving files means updating links.** When a doc moves (`plan/` → `features/`, `plan/` → `plan/done/`, `plan/ideas/` → `plan/`), update every link to it in the same edit, including the roadmap. `status` reports links that point nowhere.
+
+### The roadmap
+
+`docs/roadmap.md` holds the order. Each `##` heading is a phase, with a one-line goal. Under it, a checklist in priority order: links to plans (`- [ ] [[plan/reminders]]`) or plain tasks with no doc (`- [ ] Set up a sending domain for email`). When an item is built, check it and point its link at where the doc now lives (`- [x] [[features/reminders]]` or `- [x] [[plan/done/close-replies-early]]`). Ideas don't go on the roadmap: `plan/ideas/` is the list of them. The template is in `references/templates.md`.
+
+The script checks that location and roadmap agree:
 
 ```bash
 python <skill-path>/scripts/docs_status.py roadmap --root <project-root>
 python <skill-path>/scripts/docs_status.py next --root <project-root>
 ```
 
-Changes to `idea` or `planned` docs (and to the roadmap) are reported by `status` as **plan only**: there's no code to update, so they don't need a build plan. Mention them, then run `mark-applied` once the person has seen them.
+`roadmap` shows progress per phase and flags anything out of sync: a checked item still in `plan/`, a built doc left unchecked, a plan not on the roadmap, an idea on the roadmap, a built doc that still carries a status, a link to a doc that moved. `next` gives the item to work on: an `in-progress` one if there is one, otherwise the first unchecked item.
 
-## Planning changes to features that are already built
+Edits to anything in `plan/` and to the roadmap are reported by `status` as **plan only**: there's no code to update, so they don't need a build plan. Mention them, then run `mark-applied` once the person has seen them.
 
-**Docs other than plans always describe the app as it is built.** A reader opening `features/rsvp.md` must be able to trust that every rule in it is live. So planned work never goes into a built feature's doc, or into data, page or component docs. It goes in a doc of its own, which is written into the docs it affects when it's built. Two kinds:
+### Stale plans
 
-- **A new capability that extends a built feature** gets a feature doc with `status: planned` and `extends: [features/rsvp]`. It describes the new behavior, plus a `## Changes to <target>` section listing what will change in the docs it extends (rules that stop applying, fields to add). Example: `features/plus-ones.md`.
-- **A change to existing behavior** that isn't a capability of its own (a rule changes, a limit moves, something is removed) gets a change doc in `docs/changes/`, with `type: change`, `status: planned` and `changes: [features/rsvp]`. It says what's true now and what will be true after, in a few lines. Example: `changes/close-replies-early.md`.
-
-Both go on the roadmap like any feature and move through the same statuses. Prefer an extension when the person would name the thing ("plus-ones"); prefer a change doc when they'd describe it as an adjustment ("close replies a day earlier").
-
-**When one is built, merge it.** Write the new behavior into the docs it targets, so they describe the app as now built. Those edits are the doc diff reviewers read. Then:
-
-- A change doc gets `status: done` and a first line `Merged into [[features/rsvp]].` It stays in `docs/changes/` as a record of why the rule changed.
-- An extension that amounts to a few rules is merged the same way: its rules move into the target, and it gets `status: done` and the merged line. An extension with enough substance to stand alone (its own rules, pages and criteria) stays as a feature doc with `status: done`, and the target links to it instead.
-
-Don't delete merged plans: the roadmap and other docs link to them.
-
-**Stale plans.** A plan is written against the target as it was at the time. If the target changes before the plan is built (another feature landed, a rule was edited), the plan may no longer fit. `status` reports these as **plans to re-check**. Read the plan against the target as it is now, update the plan, and run `mark-applied` on it to record that it was re-checked. If the person edits a built feature's doc while a plan targets it, mention the plan in your report.
+A plan that extends or changes a built doc is written against that doc as it was at the time. If the target changes before the plan is built (another feature landed, a rule was edited), the plan may no longer fit. `status` reports these as **plans to re-check**. Read the plan against the target as it is now, update the plan, and run `mark-applied` on it to record that it was re-checked. If the person edits a built doc while a plan targets it, mention the plan in your report.
 
 ## Linking
 
@@ -143,11 +146,11 @@ This works because the script keeps a copy of every doc as it was at the last ap
 ### Starting a new app
 
 1. Ask what the app is for, who uses it and the 3–5 things it must do. Don't ask about technology unless the person brings it up.
-2. Write `docs/app.md`, then the data docs, then one feature doc per capability (`status: planned`), then the pages. Use the templates.
+2. Write `docs/app.md`. Then write one plan per capability in `docs/plan/`, and the data and page docs they'll need inside those plans. Use the templates. Nothing goes in `features/`, `data/` or `pages/` yet, because nothing is built.
 3. Write `docs/roadmap.md`, following "Planning a set of features" below. For a small app a single phase is fine.
 4. Write `docs/.tech/stack.md` with your technical choices, kept short.
-5. Show the person the phases, a one-line summary of each feature and the open questions. They don't need to read every doc; point them to the feature docs if they want detail.
-6. On their go-ahead, set up the project skeleton, then work through the roadmap one item at a time.
+5. Show the person the phases, a one-line summary of each plan and the open questions. They don't need to read every doc; point them to the plans if they want detail.
+6. On their go-ahead, set up the project skeleton, then work through the roadmap one item at a time. As each plan is built, its doc moves to `features/` and the data and page docs it describes are written into `data/` and `pages/`.
 
 ### A doc was edited (by the person or another tool)
 
@@ -160,7 +163,7 @@ This works because the script keeps a copy of every doc as it was at the last ap
 
 ### A change was asked for in chat
 
-1. Find the doc(s) the change belongs in, using the folder layout and the links. If it's a new feature or a change to a built one and the project has a roadmap, ask whether to build it now or plan it. If built now, edit the target docs directly; a new capability still gets a feature doc, a roadmap line and `status: done`. If planned, write a planned feature doc (`extends:` if it builds on an existing one) or a change doc, and add it to the roadmap; don't touch the target docs.
+1. Find the doc(s) the change belongs in, using the folder layout and the links. If a plan in `plan/` already covers it, build that plan (see "Working through the roadmap") instead of starting fresh. If it's new work and the project has a roadmap, ask whether to build it now or plan it. If built now, edit the built docs directly; a new capability gets its doc straight in `features/` and a checked roadmap line. If planned, write a plan in `plan/` and add it to the roadmap; don't touch the built docs.
 2. Edit the docs first and show the doc diff in plain language: what the doc said, what it says now.
 3. Present the plan for the code, as above. For a small, unambiguous change, the doc diff and the plan can go in one message.
 4. On approval, apply and `mark-applied`.
@@ -171,27 +174,32 @@ If the request is purely technical with no behavior change (a refactor, a depend
 
 When the person describes several things they want, or asks for a plan (`/ddd plan`):
 
-1. Break the request into features. One doc per capability a user would name ("reply to an invite", "get a reminder"), not per technical task.
-2. Write each feature doc with `status: planned`: description, who, rules, acceptance criteria, open questions. Anything vague becomes an open question rather than a guess. Things mentioned in passing become `idea` docs or lines under `## Ideas`. Anything that changes a feature that's already built becomes an extension or a change doc, not an edit to that feature's doc.
-3. Group them into phases in `docs/roadmap.md`. A phase should leave the app usable on its own: phase 1 is the smallest version someone would actually use. Order items inside a phase by dependency first, then value. Put setup work (domains, accounts, data imports) in as plain tasks where it's needed.
-4. Show the person the phases and the open questions, in a short list. Don't build anything. Ask them to answer the open questions for phase 1 and confirm the order.
+1. Break the request into plans. One doc per capability a user would name ("reply to an invite", "get a reminder"), not per technical task. Anything that changes a feature that's already built becomes an extension or a change, never an edit to the built doc.
+2. Write each committed plan in `plan/` with `status: planned`: description, who, rules, acceptance criteria, open questions. Anything vague becomes an open question rather than a guess. Things mentioned in passing, or that the person isn't sure about, go in `plan/ideas/` as a few lines each.
+3. Group the committed plans into phases in `docs/roadmap.md`. A phase should leave the app usable on its own: phase 1 is the smallest version someone would actually use. Order items inside a phase by dependency first, then value. Put setup work (domains, accounts, data imports) in as plain tasks where it's needed.
+4. Show the person the phases, the ideas and the open questions, in a short list. Don't build anything. Ask them to answer the open questions for phase 1 and confirm the order.
 5. Run `mark-applied` to record the plan as reviewed.
+
+Promoting an idea: move it from `plan/ideas/` to `plan/`, fill it out to the planned standard, set `status: planned`, and add it to the roadmap. Dropping a plan: move it back to `plan/ideas/` and take it off the roadmap, or delete it if the person says so.
 
 ### Working through the roadmap
 
 `/ddd next`, or "keep going", "what's next":
 
 1. Run `next`. If an item is already `in-progress`, resume it; don't start another.
-2. Read its doc and the docs it uses, extends or changes. If `status` lists it as a plan to re-check, re-check it against its target first. If open questions affect it, ask now, before writing code.
+2. Read its plan and the docs it uses, extends or changes. If `status` lists it as a plan to re-check, re-check it against its target first. If open questions affect it, ask now, before writing code.
 3. Set `status: in-progress` and tell the person in one line what you're starting and what "done" means for it (its acceptance criteria, in brief).
-4. Follow the normal plan-then-apply loop: any doc updates, then the plan, then on approval the code and tests. If the person has said to keep going without asking for each item, skip the approval only for items whose docs they've already reviewed.
-5. When the tests pass: if it extends or changes other docs, merge it into them (see "Planning changes to features that are already built"). Set `status: done`, check its box in `roadmap.md`, and run `mark-applied`.
-6. Report in two or three lines: what's done, what's next, and how far along the phase is. Stop there unless asked to continue.
+4. Follow the normal plan-then-apply loop: the doc updates (below), then the plan for the code, then on approval the code and tests. If the person has said to keep going without asking for each item, skip the approval only for items whose docs they've already reviewed.
+5. Doc updates when it's built:
+    - New feature: move the plan to `features/` and remove its `status`. Write any data, page or component docs it describes into their folders.
+    - Extension or change: merge it into its targets, then move the plan to `plan/done/` with `Merged into …` as its first line and no `status`. A substantial extension moves to `features/` instead.
+    - Update links to the moved doc, check its roadmap item and point the link at the new location.
+6. When the tests pass, run `mark-applied`. Report in two or three lines: what's done, what's next, and how far along the phase is. Stop there unless asked to continue.
 7. At the end of a phase, stop even if asked to keep going. Summarize the phase and ask the person to try the app before starting the next one, since phase boundaries are where plans change.
 
-A plain task (no feature doc) is done the same way, without the doc steps: do it, check it off, note anything technical in `.tech/`.
+A plain task (no doc) is done the same way, without the doc steps: do it, check it off, note anything technical in `.tech/`.
 
-If something new comes up while building (a missing rule, a feature the current one depends on), don't expand the current item silently. Add it to the roadmap as its own item, or as an open question, and mention it in the report.
+If something new comes up while building (a missing rule, a feature the current one depends on), don't expand the current item silently. Add it to the roadmap as its own plan, to `plan/ideas/`, or as an open question, and mention it in the report.
 
 ### Mark the state applied
 

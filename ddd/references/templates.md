@@ -2,7 +2,7 @@
 
 One template per doc type. Copy the shape, not the example content. Sections marked *(optional)* can be dropped when empty; everything else stays, even if short. The examples describe a small dinner-club app: hosts create dinners and invite friends, guests reply.
 
-Contents: app.md · roadmap.md · data · features · extensions · changes · pages · components · integrations · .tech
+Contents: app.md · roadmap.md · data · features · pages · components · integrations · .tech · plans (new feature, extension, change) · ideas · merged record
 
 ---
 
@@ -49,25 +49,20 @@ type: roadmap
 ## Phase 1: Core
 Goal: a host can create a dinner and guests can reply.
 - [x] [[features/create-dinner]]
-- [ ] [[features/rsvp]]
-- [ ] [[features/reminders]]
+- [x] [[features/rsvp]]
+- [ ] [[plan/reminders]]
 - [ ] Set up a sending domain for email
 
 ## Phase 2: Bigger dinners
-Goal: dinners with plus-ones and waitlists.
-- [ ] [[features/plus-ones]]
-- [ ] [[changes/close-replies-early]]
-- [ ] [[features/waitlist]]
-
-## Ideas
-- [ ] [[features/photos]]
-- Splitting the bill
+Goal: dinners with plus-ones and a firm headcount.
+- [ ] [[plan/plus-ones]]
+- [ ] [[plan/close-replies-early]]
 ```
 
 - Each `##` is a phase with a one-line goal. Phase 1 is the smallest version someone would use.
-- Items are in priority order. A checked box means the feature's status is `done`.
-- Feature and change items link to their doc. Setup work with no doc is a plain line.
-- `## Ideas` (or `## Backlog`) is never picked up by `next`. Items there may have a checkbox or not.
+- Items are in priority order. Unchecked items link into `plan/`; when one is built, check it and point the link at where the doc now lives (`features/…` or `plan/done/…`).
+- Setup work with no doc is a plain line.
+- No ideas here: `plan/ideas/` is the list of them.
 
 ---
 
@@ -105,7 +100,6 @@ Field names are written as people say them, not as column names. `.tech/` maps t
 ```markdown
 ---
 type: feature
-status: planned
 uses: [data/rsvp, data/dinner, integrations/email]
 shown-on: [pages/dinner]
 ---
@@ -139,11 +133,11 @@ going → can't go (frees a seat)
 - Should guests see who said maybe?
 ```
 
-`status` is one of `idea`, `planned`, `in-progress`, `done`. An `idea` doc can be just the title, a sentence and its open questions; it needs rules and acceptance criteria before it becomes `planned`.
+This is a built feature: it lives in `features/` and has no `status`. A plan for a new feature (`plan/<feature>.md`) has exactly the same shape, plus `status: planned` in its frontmatter; when it's built, the file moves here and the `status` line goes.
 
 ---
 
-## docs/features/<feature>.md that extends a built feature
+## docs/plan/<feature>.md: an extension of a built feature
 
 ```markdown
 ---
@@ -178,11 +172,11 @@ Guests who are going can bring one person with them.
 - Can a host turn plus-ones off for a dinner?
 ```
 
-`extends:` lists the docs it will change. The rsvp doc itself stays as it is until this is built. `## Changes to <target>` is what gets merged then.
+`extends:` lists the built docs it will change; they stay as they are until this is built. `## Changes to <target>` is what gets merged then.
 
 ---
 
-## docs/changes/<change>.md
+## docs/plan/<change>.md: a change to built behavior
 
 ```markdown
 ---
@@ -200,15 +194,52 @@ Hosts need a final headcount for the restaurant.
 
 ## After
 - Replies close 24 hours before the dinner starts.
-- The dinner page says "Replies close tomorrow at 19:00"
-  during the last day before closing.
+- On the last day before closing, the dinner page says
+  "Replies close tomorrow at 19:00".
 
 ## Acceptance criteria
 - Given a dinner starting in 23 hours, when a guest
   replies, then they see "Replies are closed."
 ```
 
-Name the file after the change, not a date or number. When built, the `## After` lines are written into the target docs, and the change doc gets `status: done` with a first line `Merged into [[features/rsvp]].`
+Name the file after the change, not a date or number. When built, the `## After` lines are written into the target docs.
+
+---
+
+## docs/plan/ideas/<idea>.md
+
+```markdown
+---
+type: idea
+---
+
+# Photos after the dinner
+
+Guests could share photos from the evening on the dinner page.
+
+## Open questions
+- Who can see them: everyone invited, or only who went?
+```
+
+An idea can be a title and a few lines. It isn't on the roadmap. To commit to it, move it to `plan/`, fill it out like any plan (rules, acceptance criteria), add `status: planned` and a roadmap line.
+
+---
+
+## docs/plan/done/<plan>.md: a merged record
+
+```markdown
+---
+type: change
+changes: [features/rsvp]
+---
+
+Merged into [[features/rsvp]].
+
+# Close replies a day before the dinner
+…the rest of the plan, unchanged…
+```
+
+When an extension or change is built and merged, it moves here, loses its `status`, and gets the "Merged into" line on top. It's kept as a record of why the target changed.
 
 ---
 

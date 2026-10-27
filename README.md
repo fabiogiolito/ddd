@@ -17,13 +17,15 @@ Because every change lands in the docs first, teammates can follow new features 
 ```
 docs/
 ├── app.md            # what the app is, who uses it, roles, glossary
-├── roadmap.md        # phases and the order features get built in
+├── roadmap.md        # phases and the order plans get built in
 ├── data/             # what the app remembers
 ├── features/         # what the app does
-├── changes/          # planned changes to features already built
 ├── pages/            # what people see
 ├── components/       # reusable UI pieces
 ├── integrations/     # auth, email, payments, APIs
+├── plan/             # committed work that isn't built yet
+│   ├── ideas/        # loose ideas, not committed
+│   └── done/         # plans that were built and merged, kept as a record
 └── .tech/            # technical decisions, for whoever reads code
 ```
 
@@ -35,26 +37,35 @@ Each feature doc ends with Given / When / Then acceptance criteria, which become
 
 ### Planning and the roadmap
 
-Each feature doc has a `status`: `idea`, `planned`, `in-progress` or `done`. `docs/roadmap.md` lays features out in phases, as checklists in priority order, with an `## Ideas` section for unscheduled items:
+Where a doc lives says what stage it's in, so the folder tree shows what's built and what's coming without opening a file:
+
+| Stage | Where |
+| --- | --- |
+| Idea | `docs/plan/ideas/` |
+| Planned, or in progress | `docs/plan/`, with `status: planned` or `status: in-progress` |
+| Built | `docs/features/`, `docs/data/`, `docs/pages/`, … (no status) |
+| Merged record | `docs/plan/done/` |
+
+`docs/roadmap.md` lays the plans out in phases, as checklists in priority order:
 
 ```markdown
 ## Phase 1: Core
 Goal: a host can create a dinner and guests can reply.
 - [x] [[features/create-dinner]]
-- [ ] [[features/rsvp]]
+- [ ] [[plan/reminders]]
 - [ ] Set up a sending domain for email
 ```
 
-Plan a whole set of features without building anything, then have the agent take them one at a time: it marks each `in-progress`, builds it through the usual docs → plan → code loop, marks it `done`, checks it off, and stops for review. At the end of a phase it stops so you can try the app before the next one.
+Plan a whole set of features without building anything, then have the agent take them one at a time: it marks each `in-progress`, builds it through the usual docs → plan → code loop, moves its doc to where it now belongs, checks it off, and stops for review. At the end of a phase it stops so you can try the app before the next one.
 
 ### Changing a feature that's already built
 
-Feature docs describe only what's built, so you can trust every rule in them is live. Planned work that touches a built feature lives in its own doc until it's built:
+Built docs describe only what's live, so you can trust every rule in them. Planned work that touches a built feature is a plan of its own in `docs/plan/`:
 
-- **An extension** is a new feature doc with `extends: [features/rsvp]`, e.g. `features/plus-ones.md`. It describes the new behavior and lists what will change in the feature it extends.
-- **A change** is a short doc in `docs/changes/` with `changes: [features/rsvp]`, saying what's true now and what will be true after, e.g. `changes/close-replies-early.md`.
+- **An extension** adds a capability on top of a built feature: `extends: [features/rsvp]`, e.g. `plan/plus-ones.md`. It describes the new behavior and lists what will change in the feature it extends.
+- **A change** adjusts existing behavior: `changes: [features/rsvp]`, e.g. `plan/close-replies-early.md`, saying what's true now and what will be true after.
 
-When one is built, the agent writes it into the docs it targets. That edit is the doc diff reviewers read. The plan is then marked `done` and kept as a record. If a target doc changes before its plan is built, `status` flags the plan to re-check.
+When one is built, the agent writes it into the docs it targets. That edit is the doc diff reviewers read. The plan then moves to `plan/done/` as a record. If a target doc changes before its plan is built, `status` flags the plan to re-check.
 
 ### Noticing doc edits
 
@@ -80,7 +91,7 @@ It stores a hash and a copy of each doc as last built in `docs/.state.json` and 
 ## Use
 
 - `/ddd` reports what changed in the docs since the last build.
-- `/ddd plan <idea>` writes planned feature docs and a phased roadmap, without building.
+- `/ddd plan <idea>` writes plans in `docs/plan/` and a phased roadmap, without building.
 - `/ddd next` builds the next roadmap item and marks it done.
 - `/ddd roadmap` shows progress per phase.
 - `/ddd <request>` starts an app, applies a doc edit, or makes a change, following the docs-first workflow.
