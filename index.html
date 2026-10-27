@@ -107,7 +107,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
 <div class="wrap">
 <nav>
   <span class="mark">ddd</span>
-  <span class="links"><a href="#idea">Idea</a><a href="#structure">Structure</a><a href="#workflow">Workflow</a><a href="#install">Install</a><a href="https://github.com/fabiogiolito/ddd">GitHub</a></span>
+  <span class="links"><a href="#idea">Idea</a><a href="#structure">Structure</a><a href="#workflow">Workflow</a><a href="#planning">Planning</a><a href="#install">Install</a><a href="https://github.com/fabiogiolito/ddd">GitHub</a></span>
 </nav>
 
 <header>
@@ -140,6 +140,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
         <li><span class="dir">docs/</span>
           <ul>
             <li><button role="tab" aria-selected="true" data-f="app">app.md</button></li>
+            <li><button role="tab" aria-selected="false" data-f="roadmap">roadmap.md</button></li>
             <li><span class="dir">data/</span>
               <ul>
                 <li><span class="note">dinner.md</span></li>
@@ -205,6 +206,27 @@ and see who's coming.
   and a seat limit
 - RSVP: a guest's reply: going, maybe
   or can't go</pre>
+<pre id="f-roadmap" hidden><span class="fm">---
+type: roadmap
+---</span>
+<span class="h"># Roadmap</span>
+
+<span class="h">## Phase 1: Core</span>
+Goal: a host can create a dinner and
+guests can reply.
+- [x] <span class="lk">[[features/create-dinner]]</span>
+- [x] <span class="lk">[[features/rsvp]]</span>
+- [ ] <span class="lk">[[features/reminders]]</span>
+- [ ] Set up a sending domain for email
+
+<span class="h">## Phase 2: Bigger dinners</span>
+Goal: plus-ones and waitlists.
+- [ ] <span class="lk">[[features/plus-ones]]</span>
+- [ ] <span class="lk">[[features/waitlist]]</span>
+
+<span class="h">## Ideas</span>
+- Photos after the dinner
+- Splitting the bill</pre>
 <pre id="f-data" hidden><span class="fm">---
 type: data
 ---</span>
@@ -224,6 +246,7 @@ A guest's reply to one dinner invite.
   reply replaces the old one.</pre>
 <pre id="f-feature" hidden><span class="fm">---
 type: feature
+status: done
 uses: [data/rsvp, data/dinner, integrations/email]
 shown-on: [pages/dinner]
 ---</span>
@@ -308,6 +331,7 @@ understand what the app does.</span>
   <table>
     <tr><th>Folder</th><th>Answers</th></tr>
     <tr><td><code>app.md</code></td><td>What the app is, who uses it, the words it uses</td></tr>
+    <tr><td><code>roadmap.md</code></td><td>What gets built next: phases, in priority order</td></tr>
     <tr><td><code>data/</code></td><td>What the app remembers</td></tr>
     <tr><td><code>features/</code></td><td>What the app does, its rules, and how to tell it works</td></tr>
     <tr><td><code>pages/</code></td><td>What people see, top to bottom</td></tr>
@@ -383,16 +407,78 @@ understand what the app does.</span>
   </ol>
 </section>
 
+<section id="planning">
+  <p class="kicker">Planning</p>
+  <h2>Plan the whole app, build one feature at a time</h2>
+  <p>The docs can describe what the app will do, not only what it does today. Describe everything you have in mind and the agent writes it up as planned features, grouped into phases, without building anything. Then it works through them one at a time.</p>
+
+  <h3>Each feature has a status</h3>
+  <table>
+    <tr><th>Status</th><th>Meaning</th></tr>
+    <tr><td><code>idea</code></td><td>Worth remembering, not committed to. Can be a few lines.</td></tr>
+    <tr><td><code>planned</code></td><td>Committed to, with rules and acceptance criteria written, so it's ready to build</td></tr>
+    <tr><td><code>in-progress</code></td><td>Being built now, one at a time</td></tr>
+    <tr><td><code>done</code></td><td>Built, with its acceptance tests passing</td></tr>
+  </table>
+  <p style="margin-top:14px">The status lives in the feature doc's frontmatter. The order lives in <code>roadmap.md</code>: each phase is a checklist of features and plain tasks, top to bottom, with an <b>Ideas</b> list at the end for things not yet scheduled. Phase 1 is the smallest version someone would actually use. Open <code>roadmap.md</code> in the file browser above to see one.</p>
+
+  <h3>Working through it</h3>
+  <p>Each <code>/ddd next</code> takes the next unchecked item through the same docs → plan → code loop: mark it in progress, ask any open questions, build it, run its tests, mark it done and check it off. Then the agent reports and stops.</p>
+
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
+<pre><span class="u">&gt; /ddd next</span>
+
+<span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py next)
+  <span class="m">⎿  Phase 1: Core: features/reminders</span>
+<span class="m">       docs/features/reminders.md, status: planned</span>
+
+<span class="m">⏺</span> Next up is <b>reminders</b>: guests who said going or maybe get
+  an email the day before. Done means its two acceptance
+  criteria pass. One open question first:
+
+  - Should guests who said maybe get the reminder too?
+
+<span class="u">&gt; yes, both</span>
+
+<span class="m">⏺</span> Update(docs/features/reminders.md)
+  <span class="m">⎿  status: planned → in-progress; open question resolved</span>
+
+  <span class="m">… plan approved, code and tests written …</span>
+
+<span class="m">⏺</span> Bash(npm test -- reminders)
+  <span class="m">⎿  2 passed</span>
+
+<span class="m">⏺</span> Update(docs/features/reminders.md)
+  <span class="m">⎿  status: in-progress → done</span>
+<span class="m">⏺</span> Update(docs/roadmap.md)
+  <span class="m">⎿  - [x] [[features/reminders]]</span>
+
+<span class="m">⏺</span> <b>Reminders are done.</b> Phase 1 is 3 of 4: the sending
+  domain is the last item. Say "next" to continue.</pre>
+  </div>
+
+  <p style="margin-top:20px">A few rules keep the plan honest:</p>
+  <ul>
+    <li>At the end of each phase the agent stops, even if you told it to keep going, so you can try the app before the next phase.</li>
+    <li>Anything new that comes up mid-build becomes its own roadmap item, not a quiet addition to the current one.</li>
+    <li>Asking for a new feature in chat gets one question: build it now, or add it to the roadmap?</li>
+    <li>Editing a planned feature is a plan-only change: the docs update, and no code is touched.</li>
+  </ul>
+</section>
+
 <section id="tracking">
   <p class="kicker">Change tracking</p>
   <h2>How the agent knows what changed</h2>
   <p>The skill includes a small Python script, standard library only. It keeps a hash and a copy of every doc as it was at the last build, in <code>docs/.state.json</code> and <code>docs/.state/</code>.</p>
   <table>
     <tr><th>Command</th><th>What it does</th></tr>
-    <tr><td><code>status</code></td><td>Docs added, changed or removed since the last build; which other docs link to them; broken links</td></tr>
+    <tr><td><code>status</code></td><td>Docs added, changed or removed since the last build; which other docs link to them; broken links. Edits to unbuilt features are listed as plan only</td></tr>
     <tr><td><code>diff &lt;doc&gt;</code></td><td>Line diff of one doc against its last built version</td></tr>
     <tr><td><code>mark-applied</code></td><td>Records the current docs as built, after the code and tests pass</td></tr>
     <tr><td><code>restore &lt;doc&gt;</code></td><td>Puts a doc back to its last built version</td></tr>
+    <tr><td><code>roadmap</code></td><td>Progress per phase, plus anything out of sync: an item checked but not done, a planned feature missing from the roadmap</td></tr>
+    <tr><td><code>next</code></td><td>The item to work on: the one in progress, or the first unchecked one</td></tr>
   </table>
 </section>
 
@@ -410,7 +496,7 @@ understand what the app does.</span>
       <h3>Other agents</h3>
       <p>Point the agent at <code>ddd/SKILL.md</code>. It's plain markdown, and the script runs anywhere Python does.</p>
       <h3>Usage</h3>
-      <p><code>/ddd</code> on its own reports what changed in the docs. <code>/ddd</code> followed by a request starts a new app or makes a change.</p>
+      <p><code>/ddd</code> on its own reports what changed in the docs. <code>/ddd plan &lt;idea&gt;</code> plans features and phases without building. <code>/ddd next</code> builds the next roadmap item. <code>/ddd roadmap</code> shows progress. Anything else after <code>/ddd</code> is a request: start an app or make a change.</p>
     </div>
   </div>
 </section>
@@ -422,7 +508,7 @@ understand what the app does.</span>
 (function(){
   var tabs=document.querySelectorAll('.tree button');
   var path=document.getElementById('fpath');
-  var names={app:'docs/app.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
+  var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
       tabs.forEach(function(o){o.setAttribute('aria-selected','false')});
