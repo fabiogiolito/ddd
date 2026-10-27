@@ -475,7 +475,7 @@ understand what the app does.</span>
     <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
 <pre><span class="u">&gt; /ddd let guests bring a plus-one</span>
 
-<span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py status)
+<span class="m">⏺</span> Bash(python .claude/skills/ddd/scripts/docs_status.py status)
   <span class="m">⎿  No changes since last apply (17 docs).</span>
 
 <span class="m">⏺</span> This is already planned: plan/plus-ones.md (phase 2).
@@ -577,7 +577,7 @@ understand what the app does.</span>
     <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
 <pre><span class="u">&gt; /ddd next</span>
 
-<span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py next)
+<span class="m">⏺</span> Bash(python .claude/skills/ddd/scripts/docs_status.py next)
   <span class="m">⎿  Phase 1: Core: plan/reminders</span>
 <span class="m">       docs/plan/reminders.md, status: planned</span>
 
@@ -642,16 +642,17 @@ understand what the app does.</span>
 <section id="install">
   <p class="kicker">Install</p>
   <h2>Add it to your agent</h2>
+  <p>With the <a href="https://skills.sh">skills CLI</a>, from your project folder (needs Node 22.20 or later):</p>
+  <div class="term" style="margin-top:12px"><pre><span class="u">npx skills add fabiogiolito/ddd</span></pre></div>
+  <p style="margin-top:14px">It asks which agents to install it for: Claude Code, Cursor, Codex and others. Add <code>-g</code> to install it for every project, or <code>-a claude-code -y</code> to skip the questions. <code>npx skills update ddd</code> gets the latest version.</p>
   <div class="cols">
     <div>
-      <h3>Claude Code</h3>
-      <p>Copy the <code>ddd/</code> folder from the <a href="https://github.com/fabiogiolito/ddd">repo</a> into <code>~/.claude/skills/</code>, or into <code>.claude/skills/</code> in one project. Then use <code>/ddd</code>.</p>
       <h3>Claude (web and desktop)</h3>
       <p>Download <a href="https://github.com/fabiogiolito/ddd/raw/main/ddd.skill">ddd.skill</a> and add it under Customize &gt; Skills.</p>
+      <h3>By hand</h3>
+      <p>Copy <code>skills/ddd/</code> from the <a href="https://github.com/fabiogiolito/ddd">repo</a> into <code>.claude/skills/</code> in a project, or <code>~/.claude/skills/</code> for all of them. Other agents can read <code>skills/ddd/SKILL.md</code> directly; it's plain markdown.</p>
     </div>
     <div>
-      <h3>Other agents</h3>
-      <p>Point the agent at <code>ddd/SKILL.md</code>. It's plain markdown, and the script runs anywhere Python does.</p>
       <h3>Usage</h3>
       <p><code>/ddd</code> on its own reports what changed in the docs. <code>/ddd plan &lt;idea&gt;</code> writes plans and phases without building. <code>/ddd next</code> builds the next roadmap item. <code>/ddd roadmap</code> shows progress. Anything else after <code>/ddd</code> is a request: start an app or make a change.</p>
     </div>
