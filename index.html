@@ -101,30 +101,35 @@ td:first-child{white-space:nowrap;padding-right:20px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
 @media (max-width:640px){.cols{grid-template-columns:1fr;gap:0}}
 
-/* diff comparison */
-.duo{display:flex;gap:16px;margin-top:20px;align-items:flex-start}
-.pane{flex:1 1 0;min-width:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);transition:flex-grow .5s cubic-bezier(.4,0,.2,1),border-color .2s}
-.pane.big{flex-grow:2}
-.pane:not(.big){cursor:pointer}
-.pane:not(.big):hover{border-color:var(--faint)}
-.pane:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.pane .head{padding:12px 16px;border-bottom:1px solid var(--line)}
+/* diff comparison: two same-size cards; each scales in place on its own side */
+.duo{position:relative;width:min(1040px,calc(100vw - 32px));margin:32px 0 0 calc((100% - min(1040px,calc(100vw - 32px)))/2);aspect-ratio:100/68}
+.pane{position:absolute;top:4%;width:54%;aspect-ratio:5/6;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--paper);
+  box-shadow:0 1px 2px rgba(40,30,20,.06),0 10px 30px rgba(40,30,20,.08);
+  transition:transform .6s cubic-bezier(.3,.7,.2,1),box-shadow .3s;will-change:transform}
+.pane.l{left:4%;transform-origin:0 50%;--r:-3deg}
+.pane.r{right:4%;transform-origin:100% 50%;--r:3deg}
+.pane.front{z-index:2;transform:rotate(var(--r)) scale(1)}
+.pane.back{z-index:1;cursor:pointer;transform:rotate(var(--r)) scale(.73)}
+.pane.back:hover{transform:rotate(var(--r)) scale(.75);box-shadow:0 1px 2px rgba(40,30,20,.06),0 14px 36px rgba(40,30,20,.12)}
+@media (prefers-color-scheme: dark){.pane{box-shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35)}}
+.pane:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.pane .head{padding:14px 18px;border-bottom:1px solid var(--line);flex:none}
 .pane .head b{display:block;font-weight:600;font-size:15px}
 .pane .head span{display:block;font:12px "Geist Mono",monospace;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pane pre{padding:10px 0 14px;font-size:12.5px;line-height:1.65;overflow:hidden}
-.pane pre span{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:0 16px 0 calc(16px + 2ch);text-indent:-2ch}
-.pane.doc pre span{padding-left:calc(16px + 4ch);text-indent:-4ch}
+.pane .hint{display:block;font:normal 12px/18px "Geist Mono",monospace;color:var(--faint);max-height:0;margin-top:0;opacity:0;overflow:hidden;transition:opacity .3s,max-height .4s,margin .4s}
+.pane.back .hint{max-height:18px;margin-top:6px;opacity:1}
+.pane pre{flex:1;min-height:0;padding:10px 0 14px;font-size:12.5px;line-height:1.65;overflow:hidden;
+  -webkit-mask-image:linear-gradient(#000 88%,transparent);mask-image:linear-gradient(#000 88%,transparent)}
+.pane pre span{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:0 18px 0 calc(18px + 2ch);text-indent:-2ch}
+.pane.doc pre span{padding-left:calc(18px + 4ch);text-indent:-4ch}
 .pane .hk{color:var(--faint)}
 .pane .d{color:var(--faint);background:var(--code)}
 .pane .a{background:var(--hl);color:var(--ink)}
-.pane .note{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
-.pane .note b{color:var(--ink);font-weight:600}
-.pane .hint{display:none;font:12px "Geist Mono",monospace;color:var(--faint);margin-top:6px}
-.pane:not(.big) .hint{display:block}
 @media (max-width:700px){
-  .duo{flex-direction:column}
-  .pane,.pane.big{flex:none;width:100%;cursor:default}
-  .pane .hint{display:none!important}
+  .duo{width:auto;margin:28px 0 0;aspect-ratio:auto;display:flex;flex-direction:column;gap:16px}
+  .pane,.pane.front,.pane.back,.pane.back:hover{position:static;width:100%;aspect-ratio:auto;transform:none;cursor:default}
+  .pane pre{-webkit-mask-image:none;mask-image:none}
+  .pane .hint{display:none}
 }
 @media (prefers-reduced-motion:reduce){.pane{transition:none}}
 
@@ -441,15 +446,13 @@ understand what the app does.</span>
   <p>Here is the plus-one change from the session above, as a teammate would review it. Both come from the same update. The code diff is still there for whoever wants it; the doc diff is the one anyone can read.</p>
 
   <div class="duo">
-    <div class="pane doc big" role="button" tabindex="0" aria-expanded="true">
-      <div class="head"><b>Doc diff</b><span>docs/features/rsvp.md · 3 files changed, +6 −1</span></div>
+    <div class="pane doc l front" role="button" tabindex="0" aria-expanded="true">
+      <div class="head"><b>Doc diff</b><span>docs/features/rsvp.md · 3 files changed, +6 −1</span><em class="hint">Click to enlarge</em></div>
 <pre><span class="hk">## Rules</span><span>  - Replies close when the dinner starts.</span><span class="d">- - Each invite is for one person.</span><span class="a">+ - Guests who are going can bring one plus-one.</span><span class="a">+ - A plus-one takes a seat. If there's room for the guest but not the plus-one, both join the waitlist.</span><span>  - If the dinner is full, new "going" replies join a waitlist.</span><span> </span><span class="hk">## Acceptance criteria</span><span class="a">+ - Given a guest going with a plus-one, then "seats left" drops by two.</span></pre>
-      <div class="note"><b>The rule is the diff.</b> Anyone on the team can read what changed, check it's what they wanted, and comment on a sentence, without knowing the codebase.<span class="hint">Click to expand</span></div>
     </div>
-    <div class="pane code" role="button" tabindex="0" aria-expanded="false">
-      <div class="head"><b>Code diff</b><span>src/features/rsvp.ts · 5 files changed, +38 −7</span></div>
+    <div class="pane code r back" role="button" tabindex="0" aria-expanded="false">
+      <div class="head"><b>Code diff</b><span>src/features/rsvp.ts · 5 files changed, +38 −7</span><em class="hint">Click to enlarge</em></div>
 <pre><span class="hk">@@ -18,14 +18,23 @@ export async function reply(db, dinnerId, input) {</span><span>  const dinner = await db.dinners.get(dinnerId);</span><span>  if (Date.now() &gt;= dinner.startsAt) throw new ClosedError();</span><span class="d">- const taken = await db.rsvps.count({ dinnerId, answer: 'going' });</span><span class="d">- const status = taken &lt; dinner.seats ? 'going' : 'waitlist';</span><span class="a">+ if (input.plusOne &amp;&amp; input.answer !== 'going') {</span><span class="a">+   throw new ValidationError('plus_one_requires_going');</span><span class="a">+ }</span><span class="a">+ const rows = await db.rsvps.list({ dinnerId, answer: 'going' });</span><span class="a">+ const taken = rows.reduce((n, r) =&gt; n + (r.plusOne ? 2 : 1), 0);</span><span class="a">+ const need = input.plusOne ? 2 : 1;</span><span class="a">+ const status = taken + need &lt;= dinner.seats ? 'going' : 'waitlist';</span><span>  await db.rsvps.upsert({</span><span>    dinnerId,</span><span>    guestId: input.guestId,</span><span>    answer: status,</span><span>    note: input.note ?? null,</span><span class="a">+   plusOne: input.plusOne?.trim() || null,</span><span>  });</span></pre>
-      <div class="note">To know what changed for guests, you have to work it out from a <code>reduce</code> and a comparison. One rule is easy to miss: if there's a seat for the guest but not for their plus-one, both go on the waitlist.<span class="hint">Click to expand</span></div>
     </div>
   </div>
 </section>
@@ -557,9 +560,9 @@ understand what the app does.</span>
   var path=document.getElementById('fpath');
   var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
   var panes=document.querySelectorAll('.pane');
-  function grow(p){panes.forEach(function(o){var on=o===p;o.classList.toggle('big',on);o.setAttribute('aria-expanded',on?'true':'false')})}
+  function grow(p){panes.forEach(function(o){var on=o===p;o.classList.toggle('front',on);o.classList.toggle('back',!on);o.setAttribute('aria-expanded',on?'true':'false')})}
   panes.forEach(function(p){
-    p.addEventListener('click',function(){if(!p.classList.contains('big'))grow(p)});
+    p.addEventListener('click',function(){if(p.classList.contains('back'))grow(p)});
     p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();grow(p)}});
   });
   tabs.forEach(function(t){
