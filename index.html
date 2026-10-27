@@ -54,7 +54,7 @@ pre code{background:none;padding:0;font-size:inherit}
 @media (max-width:640px){.idea{grid-template-columns:1fr}}
 
 /* file browser */
-.browser{display:grid;grid-template-columns:304px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:24px}
+.browser{display:grid;grid-template-columns:288px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:24px}
 .tree{border-right:1px solid var(--line);padding:12px 12px 14px;font:13px/1 "Geist Mono",monospace}
 .tree ul{list-style:none;margin:0;padding:0}
 .tree ul ul{margin-left:9px;padding-left:12px;border-left:1px solid var(--line)}
@@ -67,6 +67,12 @@ pre code{background:none;padding:0;font-size:inherit}
 .tree button{width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;border-radius:6px;cursor:pointer}
 .tree button:hover{background:var(--code)}
 .tree button[aria-selected="true"]{background:var(--hl);font-weight:500}
+/* Phosphor icons (MIT), https://phosphoricons.com */
+.ico{display:inline-block;width:15px;height:15px;margin-right:7px;vertical-align:-3px;flex:none;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.ico.i-folder{--i:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M216,72H130.67L102.93,51.2a16.12,16.12,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V200a16,16,0,0,0,16,16H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72Zm0,128H40V64H93.33L123.2,86.4A8,8,0,0,0,128,88h88Z%22/%3E%3C/svg%3E");color:var(--muted)}
+.ico.i-folder-open{--i:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208h0a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z%22/%3E%3C/svg%3E");color:var(--muted)}
+.ico.i-md{--i:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40v72a8,8,0,0,0,16,0V40h88V88a8,8,0,0,0,8,8h48V224a8,8,0,0,0,16,0V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM144,144H128a8,8,0,0,0-8,8v56a8,8,0,0,0,8,8h16a36,36,0,0,0,0-72Zm0,56h-8V160h8a20,20,0,0,1,0,40Zm-40-48v56a8,8,0,0,1-16,0V177.38L74.55,196.59a8,8,0,0,1-13.1,0L48,177.38V208a8,8,0,0,1-16,0V152a8,8,0,0,1,14.55-4.59L68,178.05l21.45-30.64A8,8,0,0,1,104,152Z%22/%3E%3C/svg%3E");color:var(--faint)}
+.tree button[aria-selected="true"] .ico.i-md{color:var(--ink)}
 .tree .tag{font-style:normal;font-size:11px;color:var(--faint);font-weight:400;margin-left:4px}
 .file{min-width:0}
 .file .path{font:12px "Geist Mono",monospace;color:var(--muted);padding:11px 18px;border-bottom:1px solid var(--line)}
@@ -164,54 +170,64 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
 <section id="structure">
   <p class="kicker">Structure</p>
   <h2>A folder of linked docs</h2>
-  <p>Everything lives in <code>docs/</code>. Each folder answers one question, so there's always one obvious place to look. Docs link to each other with <code>[[wiki-links]]</code>, and frontmatter records what each doc depends on. Pick a file to read it.</p>
+  <p>Everything lives in <code>docs/</code>. Each folder answers one question, so there's always one obvious place to look. Docs link to each other with <code>[[wiki-links]]</code>, and frontmatter records what each doc depends on. Everything outside <code>plan/</code> is built and live; everything inside it isn't built yet. Pick a file to read it.</p>
 
   <div class="browser">
     <div class="tree" role="tablist" aria-label="Files">
       <ul>
-        <li><span class="dir">docs/</span>
+        <li><span class="dir"><i class="ico i-folder-open"></i>docs/</span>
           <ul>
-            <li><button role="tab" aria-selected="true" data-f="app">app.md</button></li>
-            <li><button role="tab" aria-selected="false" data-f="roadmap">roadmap.md</button></li>
-            <li><span class="dir">data/</span>
+            <li><button role="tab" aria-selected="true" data-f="app"><i class="ico i-md"></i>app.md</button></li>
+            <li><button role="tab" aria-selected="false" data-f="roadmap"><i class="ico i-md"></i>roadmap.md</button></li>
+            <li><span class="dir"><i class="ico i-folder"></i>data/</span>
               <ul>
-                <li><span class="note">dinner.md</span></li>
-                <li><span class="note">person.md</span></li>
-                <li><button role="tab" aria-selected="false" data-f="data">rsvp.md</button></li>
+                <li><span class="note"><i class="ico i-md"></i>dinner.md</span></li>
+                <li><span class="note"><i class="ico i-md"></i>person.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="data"><i class="ico i-md"></i>rsvp.md</button></li>
               </ul>
             </li>
-            <li><span class="dir">features/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>features/</span>
               <ul>
-                <li><span class="note">create-dinner.md</span></li>
-                <li><button role="tab" aria-selected="false" data-f="feature">rsvp.md</button></li>
-                <li><span class="note">reminders.md</span></li>
-                <li><button role="tab" aria-selected="false" data-f="plusones">plus-ones.md <em class="tag">planned</em></button></li>
+                <li><span class="note"><i class="ico i-md"></i>create-dinner.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="feature"><i class="ico i-md"></i>rsvp.md</button></li>
               </ul>
             </li>
-            <li><span class="dir">changes/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>pages/</span>
               <ul>
-                <li><button role="tab" aria-selected="false" data-f="change">close-replies-early.md <em class="tag">planned</em></button></li>
+                <li><button role="tab" aria-selected="false" data-f="page"><i class="ico i-md"></i>dinner.md</button></li>
+                <li><span class="note"><i class="ico i-md"></i>my-dinners.md</span></li>
               </ul>
             </li>
-            <li><span class="dir">pages/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>components/</span>
               <ul>
-                <li><button role="tab" aria-selected="false" data-f="page">dinner.md</button></li>
-                <li><span class="note">my-dinners.md</span></li>
+                <li><span class="note"><i class="ico i-md"></i>guest-list.md</span></li>
               </ul>
             </li>
-            <li><span class="dir">components/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>integrations/</span>
               <ul>
-                <li><span class="note">guest-list.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="email"><i class="ico i-md"></i>email.md</button></li>
               </ul>
             </li>
-            <li><span class="dir">integrations/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>plan/</span>
               <ul>
-                <li><button role="tab" aria-selected="false" data-f="email">email.md</button></li>
+                <li><span class="note"><i class="ico i-md"></i>reminders.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="plusones"><i class="ico i-md"></i>plus-ones.md</button></li>
+                <li><button role="tab" aria-selected="false" data-f="change"><i class="ico i-md"></i>close-replies-early.md</button></li>
+                <li><span class="dir"><i class="ico i-folder"></i>ideas/</span>
+                  <ul>
+                    <li><button role="tab" aria-selected="false" data-f="idea"><i class="ico i-md"></i>photos.md</button></li>
+                  </ul>
+                </li>
+                <li><span class="dir"><i class="ico i-folder"></i>done/</span>
+                  <ul>
+                    <li><span class="note"><i class="ico i-md"></i>guest-notes.md</span></li>
+                  </ul>
+                </li>
               </ul>
             </li>
-            <li><span class="dir">.tech/</span>
+            <li><span class="dir"><i class="ico i-folder"></i>.tech/</span>
               <ul>
-                <li><button role="tab" aria-selected="false" data-f="tech">stack.md</button></li>
+                <li><button role="tab" aria-selected="false" data-f="tech"><i class="ico i-md"></i>stack.md</button></li>
               </ul>
             </li>
           </ul>
@@ -254,18 +270,13 @@ Goal: a host can create a dinner and
 guests can reply.
 - [x] <span class="lk">[[features/create-dinner]]</span>
 - [x] <span class="lk">[[features/rsvp]]</span>
-- [ ] <span class="lk">[[features/reminders]]</span>
+- [ ] <span class="lk">[[plan/reminders]]</span>
 - [ ] Set up a sending domain for email
 
 <span class="h">## Phase 2: Bigger dinners</span>
-Goal: plus-ones and waitlists.
-- [ ] <span class="lk">[[features/plus-ones]]</span>
-- [ ] <span class="lk">[[changes/close-replies-early]]</span>
-- [ ] <span class="lk">[[features/waitlist]]</span>
-
-<span class="h">## Ideas</span>
-- Photos after the dinner
-- Splitting the bill</pre>
+Goal: plus-ones and a firm headcount.
+- [ ] <span class="lk">[[plan/plus-ones]]</span>
+- [ ] <span class="lk">[[plan/close-replies-early]]</span></pre>
 <pre id="f-data" hidden><span class="fm">---
 type: data
 ---</span>
@@ -285,7 +296,6 @@ A guest's reply to one dinner invite.
   reply replaces the old one.</pre>
 <pre id="f-feature" hidden><span class="fm">---
 type: feature
-status: done
 uses: [data/rsvp, data/dinner, integrations/email]
 shown-on: [pages/dinner]
 ---</span>
@@ -379,6 +389,18 @@ restaurant.
 - Given a dinner starting in 23 hours,
   when a guest replies, then they see
   "Replies are closed."</pre>
+<pre id="f-idea" hidden><span class="fm">---
+type: idea
+---</span>
+<span class="h"># Photos after the dinner</span>
+
+Guests could share photos from the evening
+on the dinner page.
+
+<span class="h">## Open questions</span>
+- Who can see them: everyone invited, or
+  only who went?
+- Do photos expire after a while?</pre>
 <pre id="f-page" hidden><span class="fm">---
 type: page
 uses: [features/rsvp, components/guest-list]
@@ -431,13 +453,15 @@ understand what the app does.</span>
   <table>
     <tr><th>Folder</th><th>Answers</th></tr>
     <tr><td><code>app.md</code></td><td>What the app is, who uses it, the words it uses</td></tr>
-    <tr><td><code>roadmap.md</code></td><td>What gets built next: phases, in priority order</td></tr>
+    <tr><td><code>roadmap.md</code></td><td>The order plans get built in: phases, in priority order</td></tr>
     <tr><td><code>data/</code></td><td>What the app remembers</td></tr>
     <tr><td><code>features/</code></td><td>What the app does, its rules, and how to tell it works</td></tr>
-    <tr><td><code>changes/</code></td><td>Planned changes to features that are already built</td></tr>
     <tr><td><code>pages/</code></td><td>What people see, top to bottom</td></tr>
     <tr><td><code>components/</code></td><td>Pieces reused across pages</td></tr>
     <tr><td><code>integrations/</code></td><td>What it talks to: sign-in, email, payments, APIs</td></tr>
+    <tr><td><code>plan/</code></td><td>Committed work that isn't built yet: new features, extensions, changes</td></tr>
+    <tr><td><code>plan/ideas/</code></td><td>Loose ideas, not committed and not on the roadmap</td></tr>
+    <tr><td><code>plan/done/</code></td><td>Plans that were built and merged, kept as a record</td></tr>
     <tr><td><code>.tech/</code></td><td>Technical decisions, for whoever reads the code</td></tr>
   </table>
 </section>
@@ -452,9 +476,9 @@ understand what the app does.</span>
 <pre><span class="u">&gt; /ddd let guests bring a plus-one</span>
 
 <span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py status)
-  <span class="m">⎿  No changes since last apply (18 docs).</span>
+  <span class="m">⎿  No changes since last apply (17 docs).</span>
 
-<span class="m">⏺</span> This is already planned: features/plus-ones.md (phase 2).
+<span class="m">⏺</span> This is already planned: plan/plus-ones.md (phase 2).
   It extends features/rsvp.md, so building it means merging
   its rules into rsvp.md. Updating the docs first.
 
@@ -489,7 +513,8 @@ understand what the app does.</span>
     allowed and keep the question on the roadmap.
 
   <b>When it's done</b>
-  - plus-ones.md is marked done and merged into rsvp.md.
+  - plus-ones.md is merged into rsvp.md, then moves to
+    plan/done/ as the record of the change.
 
   <b>Code</b>: 5 files, 2 tests added.
 
@@ -533,28 +558,28 @@ understand what the app does.</span>
 <section id="planning">
   <p class="kicker">Planning</p>
   <h2>Plan the whole app, build one feature at a time</h2>
-  <p>The docs can describe what the app will do, not only what it does today. Describe everything you have in mind and the agent writes it up as planned features, grouped into phases, without building anything. Then it works through them one at a time.</p>
+  <p>The docs can describe what the app will do, not only what it does today. Describe everything you have in mind and the agent writes it up as plans in <code>plan/</code>, grouped into phases, without building anything. Then it works through them one at a time.</p>
 
-  <h3>Each feature has a status</h3>
+  <h3>The folder shows the stage</h3>
   <table>
-    <tr><th>Status</th><th>Meaning</th></tr>
-    <tr><td><code>idea</code></td><td>Worth remembering, not committed to. Can be a few lines.</td></tr>
-    <tr><td><code>planned</code></td><td>Committed to, with rules and acceptance criteria written, so it's ready to build</td></tr>
-    <tr><td><code>in-progress</code></td><td>Being built now, one at a time</td></tr>
-    <tr><td><code>done</code></td><td>Built, with its acceptance tests passing</td></tr>
+    <tr><th>Stage</th><th>Where it lives</th></tr>
+    <tr><td>Idea</td><td><code>plan/ideas/</code>, a few lines, not committed and not on the roadmap</td></tr>
+    <tr><td>Planned</td><td><code>plan/</code>, with rules and acceptance criteria written, on the roadmap</td></tr>
+    <tr><td>In progress</td><td><code>plan/</code>, marked <code>status: in-progress</code>, one at a time</td></tr>
+    <tr><td>Built</td><td><code>features/</code>, <code>data/</code>, <code>pages/</code>, and the rest</td></tr>
   </table>
-  <p style="margin-top:14px">The status lives in the feature doc's frontmatter. The order lives in <code>roadmap.md</code>: each phase is a checklist of features and plain tasks, top to bottom, with an <b>Ideas</b> list at the end for things not yet scheduled. Phase 1 is the smallest version someone would actually use. Open <code>roadmap.md</code> in the file browser above to see one.</p>
+  <p style="margin-top:14px">So you can tell what's built and what's coming from the folder tree, without opening anything. The order lives in <code>roadmap.md</code>: each phase is a checklist of plans and plain tasks, top to bottom. Phase 1 is the smallest version someone would actually use. Open <button class="open" data-open="roadmap">roadmap.md</button> to see one. Ideas aren't on it; <button class="open" data-open="idea">plan/ideas/</button> is the list of them, and promoting one means moving it up into <code>plan/</code> and adding it to the roadmap.</p>
 
   <h3>Working through it</h3>
-  <p>Each <code>/ddd next</code> takes the next unchecked item through the same docs → plan → code loop: mark it in progress, ask any open questions, build it, run its tests, mark it done and check it off. Then the agent reports and stops.</p>
+  <p>Each <code>/ddd next</code> takes the next unchecked item through the same docs → plan → code loop: mark it in progress, ask any open questions, build it and run its tests. Then its doc moves out of <code>plan/</code> to where it now belongs, the roadmap item is checked off, and the agent reports and stops.</p>
 
   <div class="term">
     <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
 <pre><span class="u">&gt; /ddd next</span>
 
 <span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py next)
-  <span class="m">⎿  Phase 1: Core: features/reminders</span>
-<span class="m">       docs/features/reminders.md, status: planned</span>
+  <span class="m">⎿  Phase 1: Core: plan/reminders</span>
+<span class="m">       docs/plan/reminders.md, status: planned</span>
 
 <span class="m">⏺</span> Next up is <b>reminders</b>: guests who said going or maybe get
   an email the day before. Done means its two acceptance
@@ -564,7 +589,7 @@ understand what the app does.</span>
 
 <span class="u">&gt; yes, both</span>
 
-<span class="m">⏺</span> Update(docs/features/reminders.md)
+<span class="m">⏺</span> Update(docs/plan/reminders.md)
   <span class="m">⎿  status: planned → in-progress; open question resolved</span>
 
   <span class="m">… plan approved, code and tests written …</span>
@@ -572,8 +597,9 @@ understand what the app does.</span>
 <span class="m">⏺</span> Bash(npm test -- reminders)
   <span class="m">⎿  2 passed</span>
 
+<span class="m">⏺</span> Bash(git mv docs/plan/reminders.md docs/features/)
 <span class="m">⏺</span> Update(docs/features/reminders.md)
-  <span class="m">⎿  status: in-progress → done</span>
+  <span class="m">⎿  status line removed: it's built</span>
 <span class="m">⏺</span> Update(docs/roadmap.md)
   <span class="m">⎿  - [x] [[features/reminders]]</span>
 
@@ -582,19 +608,19 @@ understand what the app does.</span>
   </div>
 
   <h3>Changing a feature that's already built</h3>
-  <p>A built feature's doc describes only what's live, so you can trust every rule in it. Planned work that will change it lives in a doc of its own until it's built. There are two kinds, both in the file browser above:</p>
+  <p>A built feature's doc describes only what's live, so you can trust every rule in it. Work that will change it is a plan of its own in <code>plan/</code>, until it's built. There are two kinds, both in the file browser above:</p>
   <ul>
-    <li><b>An extension</b> is a new feature that builds on an existing one, like <button class="open" data-open="plusones">features/plus-ones.md</button>. It says <code>extends: [features/rsvp]</code>, describes the new behavior, and lists what will change in the RSVP doc.</li>
-    <li><b>A change</b> adjusts how a built feature works, like <button class="open" data-open="change">changes/close-replies-early.md</button>. It says <code>changes: [features/rsvp]</code> and spells out what's true now and what will be true after.</li>
+    <li><b>An extension</b> adds a capability on top of a built feature, like <button class="open" data-open="plusones">plan/plus-ones.md</button>. It says <code>extends: [features/rsvp]</code>, describes the new behavior, and lists what will change in the RSVP doc.</li>
+    <li><b>A change</b> adjusts how a built feature works, like <button class="open" data-open="change">plan/close-replies-early.md</button>. It says <code>changes: [features/rsvp]</code> and spells out what's true now and what will be true after.</li>
   </ul>
-  <p>Both go on the roadmap like any other item. When one is built, the agent writes it into the docs it targets, which produces the doc diff in the Review section above, and marks the plan done. Plans aren't deleted: they stay as the record of why a rule changed. If the RSVP doc changes before a plan is built, the status check flags the plan so it gets re-checked against the current rules.</p>
+  <p>When one is built, the agent writes it into the docs it targets, which produces the doc diff in the Review section above. The plan then moves to <code>plan/done/</code> as the record of why the rule changed. If the RSVP doc changes before a plan is built, the status check flags the plan so it gets re-checked against the current rules.</p>
 
   <p style="margin-top:20px">A few rules keep the plan honest:</p>
   <ul>
     <li>At the end of each phase the agent stops, even if you told it to keep going, so you can try the app before the next phase.</li>
-    <li>Anything new that comes up mid-build becomes its own roadmap item, not a quiet addition to the current one.</li>
+    <li>Anything new that comes up mid-build becomes its own plan or idea, not a quiet addition to the current one.</li>
     <li>Asking for a new feature in chat gets one question: build it now, or add it to the roadmap?</li>
-    <li>Editing a planned feature is a plan-only change: the docs update, and no code is touched.</li>
+    <li>Editing anything in <code>plan/</code> is a plan-only change: the docs update, and no code is touched.</li>
   </ul>
 </section>
 
@@ -604,11 +630,11 @@ understand what the app does.</span>
   <p>The skill includes a small Python script, standard library only. It keeps a hash and a copy of every doc as it was at the last build, in <code>docs/.state.json</code> and <code>docs/.state/</code>.</p>
   <table>
     <tr><th>Command</th><th>What it does</th></tr>
-    <tr><td><code>status</code></td><td>Docs added, changed or removed since the last build; which other docs link to them; broken links. Edits to unbuilt features are listed as plan only</td></tr>
+    <tr><td><code>status</code></td><td>Docs added, changed or removed since the last build; which other docs link to them; broken links. Edits inside <code>plan/</code> are listed as plan only, and plans whose target changed are flagged to re-check</td></tr>
     <tr><td><code>diff &lt;doc&gt;</code></td><td>Line diff of one doc against its last built version</td></tr>
     <tr><td><code>mark-applied</code></td><td>Records the current docs as built, after the code and tests pass</td></tr>
     <tr><td><code>restore &lt;doc&gt;</code></td><td>Puts a doc back to its last built version</td></tr>
-    <tr><td><code>roadmap</code></td><td>Progress per phase, plus anything out of sync: an item checked but not done, a planned feature missing from the roadmap</td></tr>
+    <tr><td><code>roadmap</code></td><td>Progress per phase, plus anything out of sync: an item checked but still in <code>plan/</code>, a plan missing from the roadmap, a link to a doc that moved</td></tr>
     <tr><td><code>next</code></td><td>The item to work on: the one in progress, or the first unchecked one</td></tr>
   </table>
 </section>
@@ -627,7 +653,7 @@ understand what the app does.</span>
       <h3>Other agents</h3>
       <p>Point the agent at <code>ddd/SKILL.md</code>. It's plain markdown, and the script runs anywhere Python does.</p>
       <h3>Usage</h3>
-      <p><code>/ddd</code> on its own reports what changed in the docs. <code>/ddd plan &lt;idea&gt;</code> plans features and phases without building. <code>/ddd next</code> builds the next roadmap item. <code>/ddd roadmap</code> shows progress. Anything else after <code>/ddd</code> is a request: start an app or make a change.</p>
+      <p><code>/ddd</code> on its own reports what changed in the docs. <code>/ddd plan &lt;idea&gt;</code> writes plans and phases without building. <code>/ddd next</code> builds the next roadmap item. <code>/ddd roadmap</code> shows progress. Anything else after <code>/ddd</code> is a request: start an app or make a change.</p>
     </div>
   </div>
 </section>
@@ -639,7 +665,7 @@ understand what the app does.</span>
 (function(){
   var tabs=document.querySelectorAll('.tree button');
   var path=document.getElementById('fpath');
-  var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',plusones:'docs/features/plus-ones.md',change:'docs/changes/close-replies-early.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
+  var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',plusones:'docs/plan/plus-ones.md',change:'docs/plan/close-replies-early.md',idea:'docs/plan/ideas/photos.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
   var panes=document.querySelectorAll('.pane');
   var duo=document.querySelector('.duo'), code=document.querySelector('.pane.code');
   function fit(){
