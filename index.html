@@ -108,7 +108,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
 
 <header>
   <h1>Doc-driven development</h1>
-  <p class="lede">ddd is a skill for AI coding agents. You describe an app in a folder of plain-language markdown docs. The agent writes the code from those docs and keeps it in sync whenever they change.</p>
+  <p class="lede">ddd is a skill for AI coding agents. You ask for what you want, as you already do. The agent writes it down in plain-language markdown docs first, then writes the code to match. The docs become a readable record of how the app works and how it changed.</p>
 </header>
 
 <section id="idea">
@@ -116,11 +116,13 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
   <h2>The code is not the point anymore</h2>
   <p>AI agents now write most of the code, and most people building with them no longer read it. What still matters is how the app works and what it does. That is a question of behavior, and behavior is best expressed in natural language.</p>
   <p>So ddd moves the source of truth. Docs describe the app; the code is treated like build output, generated from the docs and regenerated when they change. You can still open the code, but you don't have to.</p>
+  <p>You don't have to write the docs either. You keep talking to the agent the way you do now. For every request, it updates the docs first, then the code. The docs are how you follow what the agent is doing, and they stay behind as reference for how the app works. You can edit them directly when that's quicker, but nothing requires it.</p>
   <div class="idea">
-    <div><div class="t">You own</div><p>What the app does, who can do what, the rules, the screens, the data it keeps. Written as you'd explain it to a colleague.</p></div>
-    <div><div class="t">The agent owns</div><p>The code, the tests, the framework choices and the plumbing. It keeps all of that consistent with the docs.</p></div>
+    <div><div class="t">You decide</div><p>What the app does, who can do what, the rules, the screens. You say it in chat; you can read it, and change it if you like, in the docs.</p></div>
+    <div><div class="t">The agent handles</div><p>Writing the docs, then the code, tests, framework choices and plumbing, and keeping all of it consistent with the docs.</p></div>
   </div>
-  <p class="muted">This also makes an app readable by people who don't code: product managers, designers, the person who asked for the tool. They can read how it works and change it by editing a sentence.</p>
+  <h3>Changes anyone can follow</h3>
+  <p>Because every change lands in the docs first, the history of the docs is a history of the app in plain language. Teammates can review a new feature or a changed rule by reading a doc diff ("rejecting no longer requires a reason") instead of decoding a code diff. That includes people who don't code: product managers, designers, the person who asked for the tool.</p>
 </section>
 
 <section id="structure">
@@ -279,7 +281,7 @@ understand what the app does.</span>
 <section id="workflow">
   <p class="kicker">Workflow</p>
   <h2>Docs first, then a plan, then the code</h2>
-  <p>A change can start from a message to the agent or from editing a doc directly. Either way it goes through the docs first. The agent updates them, explains what that means for the app, and asks before touching the code.</p>
+  <p>Most changes start as a message to the agent. It finds the docs the change belongs in, updates them, explains what that means for the app, and asks before touching the code. Here's one small change, start to finish.</p>
 
   <div class="term">
     <div class="bar"><i></i><i></i><i></i><span>~/Sites/leave-app — claude</span></div>
@@ -324,12 +326,12 @@ understand what the app does.</span>
   3. No, undo the doc changes</span></pre>
   </div>
 
-  <h3>When you edit a doc yourself</h3>
-  <p>No server watches your files. At the start of every turn the agent runs a status check that compares <code>docs/</code> against the last build. If you changed something, even in another editor and without mentioning it, the agent sees the diff, checks which other docs it affects, and proposes the same kind of plan.</p>
+  <h3>If you edit a doc yourself</h3>
+  <p>This is optional, but sometimes it's the quickest way to fix a rule or reword a label. No server watches your files. At the start of every turn the agent runs a status check that compares <code>docs/</code> against the last build. If you changed something, even in another editor and without mentioning it, the agent sees the diff, checks which other docs it affects, and proposes the same kind of plan.</p>
 
   <h3>The rules the agent follows</h3>
   <ol>
-    <li><b>Docs first.</b> Every change that affects behavior lands in <code>docs/</code> before it lands in code. A request in chat becomes a doc edit.</li>
+    <li><b>Docs first.</b> Every change that affects behavior lands in <code>docs/</code> before it lands in code. The agent turns each request in chat into a doc edit.</li>
     <li><b>Plan, then apply.</b> The code is never rebuilt silently. The plan leads with what changes for users, not which files change.</li>
     <li><b>Behavior, not implementation.</b> Docs say what happens, in words you'd use in a meeting. Technical detail goes in <code>.tech/</code>.</li>
     <li><b>Acceptance criteria are the contract.</b> Each feature ends with Given / When / Then lines, which become tests. They pin down what the prose means.</li>
