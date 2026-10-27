@@ -2,7 +2,8 @@
 """Track changes to a doc-driven project's docs/ folder.
 
 Commands
-  status         What changed in docs/ since the last apply, what it affects, broken links.
+  status         What changed in docs/ since the last apply, what it affects, broken links,
+                 and planned changes whose target doc was edited after they were written.
   diff PATH      Line diff of one doc against its last applied version.
   mark-applied   Record the current docs as built (all, or only the paths given).
   restore PATH   Put one doc back to its last applied version.
@@ -25,7 +26,8 @@ from pathlib import Path
 STATE_FILE = ".state.json"
 STATE_DIR = ".state"
 LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
-REL_KEYS = ("uses", "shown-on")
+REL_KEYS = ("uses", "shown-on", "extends", "changes")
+TARGET_KEYS = ("extends", "changes")
 PLAN_STATUSES = ("idea", "planned", "in-progress")
 STATUSES = PLAN_STATUSES + ("done",)
 ROADMAP = "roadmap"
@@ -98,6 +100,32 @@ def frontmatter(text):
     return out
 
 
+def fm_list(text, key):
+    """A list value from the frontmatter: `key: [a, b]` or a `- a` block."""
+    if not text.startswith("---"):
+        return []
+    end = text.find("\n---", 3)
+    if end == -1:
+        return []
+    out, cur = [], None
+    for line in text[3:end].splitlines():
+        m = re.match(r"^([\w-]+):\s*(.*)$", line)
+        if m:
+            cur, val = m.group(1), m.group(2).strip()
+            if cur == key and val:
+                vals = val.strip("[]").split(",") if val.startswith("[") else [val]
+                out += [v.strip().strip("'\"") for v in vals if v.strip()]
+        elif cur == key and line.strip().startswith("- "):
+            out.append(line.strip()[2:].strip().strip("'\""))
+    return [v.removesuffix(".md") for v in out]
+
+
+def plan_targets(path):
+    """Docs a planned extension or change will modify when it's built."""
+    text = path.read_text(encoding="utf-8")
+    return sorted({t for k in TARGET_KEYS for t in fm_list(text, k)})
+
+
 def doc_status(path):
     """Feature status from frontmatter, or None for docs that don't track one."""
     st = frontmatter(path.read_text(encoding="utf-8")).get("status", "").lower()
@@ -134,12 +162,21 @@ def compute(root):
         if hit:
             impact[d] = sorted(hit)
     broken = sorted({(d, r) for d, refs in out.items() for r in refs if r not in docs})
+    baselines = (state or {}).get("baselines", {})
+    stale = []
+    for d, p in docs.items():
+        if doc_status(p) not in PLAN_STATUSES:
+            continue
+        for t, h in baselines.get(d, {}).items():
+            if t in current and current[t] != h:
+                stale.append({"plan": d, "target": t})
     plan_only = sorted(d for d in set(added) | set(changed)
                        if d == ROADMAP or doc_status(docs[d]) in PLAN_STATUSES)
     return {
         "initialized": state is not None,
         "added": added, "changed": changed, "removed": removed,
         "plan_only": plan_only,
+        "stale_plans": stale,
         "impact": impact,
         "broken_links": [{"in": d, "to": r} for d, r in broken],
         "doc_count": len(docs),
@@ -172,6 +209,10 @@ def cmd_status(args):
             print("May be affected:")
             for d, hits in r["impact"].items():
                 print(f"  {d} -> {', '.join(hits)}")
+    if r["stale_plans"]:
+        print("Plans to re-check (the doc they change was edited after they were written):")
+        for x in r["stale_plans"]:
+            print(f"  {x['plan']} -> {x['target']}")
     if r["broken_links"]:
         print("Broken links:")
         for b in r["broken_links"]:
@@ -210,14 +251,27 @@ def cmd_mark(args):
     else:
         targets = set(docs) | set(state["docs"])
     snap = spec / STATE_DIR
+    explicit = bool(args.paths)
+    current = {d: sha(p.read_text(encoding="utf-8")) for d, p in docs.items()}
+    baselines = state.setdefault("baselines", {})
     for d in sorted(targets):
         rel = d + ".md"
         if d in docs:
-            state["docs"][d] = sha(docs[d].read_text(encoding="utf-8"))
+            before = state["docs"].get(d)
+            tg = plan_targets(docs[d]) if doc_status(docs[d]) in PLAN_STATUSES else []
+            if tg:
+                # Record which version of each target this plan was written against.
+                # Refreshed when the plan itself was edited (re-reviewed) or named explicitly.
+                if explicit or before != current[d] or d not in baselines:
+                    baselines[d] = {t: current[t] for t in tg if t in current}
+            else:
+                baselines.pop(d, None)
+            state["docs"][d] = current[d]
             (snap / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(docs[d], snap / rel)
         else:
             state["docs"].pop(d, None)
+            baselines.pop(d, None)
             (snap / rel).unlink(missing_ok=True)
     (spec / STATE_FILE).write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"Marked {len(targets)} doc(s) as applied.")

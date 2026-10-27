@@ -2,7 +2,7 @@
 
 One template per doc type. Copy the shape, not the example content. Sections marked *(optional)* can be dropped when empty; everything else stays, even if short. The examples describe a small dinner-club app: hosts create dinners and invite friends, guests reply.
 
-Contents: app.md · roadmap.md · data · features · pages · components · integrations · .tech
+Contents: app.md · roadmap.md · data · features · extensions · changes · pages · components · integrations · .tech
 
 ---
 
@@ -56,6 +56,7 @@ Goal: a host can create a dinner and guests can reply.
 ## Phase 2: Bigger dinners
 Goal: dinners with plus-ones and waitlists.
 - [ ] [[features/plus-ones]]
+- [ ] [[changes/close-replies-early]]
 - [ ] [[features/waitlist]]
 
 ## Ideas
@@ -65,7 +66,7 @@ Goal: dinners with plus-ones and waitlists.
 
 - Each `##` is a phase with a one-line goal. Phase 1 is the smallest version someone would use.
 - Items are in priority order. A checked box means the feature's status is `done`.
-- Feature items link to their doc. Setup work with no feature doc is a plain line.
+- Feature and change items link to their doc. Setup work with no doc is a plain line.
 - `## Ideas` (or `## Backlog`) is never picked up by `next`. Items there may have a checkbox or not.
 
 ---
@@ -87,7 +88,6 @@ type: data
 | dinner | [[data/dinner]] they replied to | yes |
 | answer | going, maybe or can't go | yes |
 | note | message to the host | no |
-| plus-one | their guest's name *(planned: [[features/plus-ones]])* | no |
 
 ## Rules *(optional)*
 - One RSVP per guest per dinner. A new reply replaces the old one.
@@ -96,7 +96,7 @@ type: data
 - The guest and the host.
 ```
 
-Field names are written as people say them, not as column names. `.tech/` maps them to code if needed. Parts that exist only for an unbuilt feature carry a `*(planned: …)*` note until that feature is done.
+Field names are written as people say them, not as column names. `.tech/` maps them to code if needed. Only fields that exist today belong here; a field a planned feature will add is listed in that feature's doc until it's built.
 
 ---
 
@@ -140,6 +140,75 @@ going → can't go (frees a seat)
 ```
 
 `status` is one of `idea`, `planned`, `in-progress`, `done`. An `idea` doc can be just the title, a sentence and its open questions; it needs rules and acceptance criteria before it becomes `planned`.
+
+---
+
+## docs/features/<feature>.md that extends a built feature
+
+```markdown
+---
+type: feature
+status: planned
+extends: [features/rsvp]
+uses: [data/rsvp]
+---
+
+# Bring a plus-one
+
+Guests who are going can bring one person with them.
+
+## Rules
+- Guests who are going can add one plus-one, by name.
+- A plus-one takes a seat. If there's room for the guest
+  but not the plus-one, both join the waitlist.
+- Plus-ones show on the guest list under who brought them.
+
+## Changes to rsvp
+- "Each invite is for one person" no longer applies.
+- An RSVP gets a plus-one field: their guest's name, if any.
+- [[components/guest-list]] lists plus-ones under their guest.
+
+## Acceptance criteria
+- Given a guest going with a plus-one, then "seats left"
+  drops by two.
+- Given one seat left, when a guest replies going with a
+  plus-one, then both join the waitlist.
+
+## Open questions
+- Can a host turn plus-ones off for a dinner?
+```
+
+`extends:` lists the docs it will change. The rsvp doc itself stays as it is until this is built. `## Changes to <target>` is what gets merged then.
+
+---
+
+## docs/changes/<change>.md
+
+```markdown
+---
+type: change
+status: planned
+changes: [features/rsvp]
+---
+
+# Close replies a day before the dinner
+
+Hosts need a final headcount for the restaurant.
+
+## Now
+- Replies close when the dinner starts.
+
+## After
+- Replies close 24 hours before the dinner starts.
+- The dinner page says "Replies close tomorrow at 19:00"
+  during the last day before closing.
+
+## Acceptance criteria
+- Given a dinner starting in 23 hours, when a guest
+  replies, then they see "Replies are closed."
+```
+
+Name the file after the change, not a date or number. When built, the `## After` lines are written into the target docs, and the change doc gets `status: done` with a first line `Merged into [[features/rsvp]].`
 
 ---
 

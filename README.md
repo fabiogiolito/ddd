@@ -20,6 +20,7 @@ docs/
 ├── roadmap.md        # phases and the order features get built in
 ├── data/             # what the app remembers
 ├── features/         # what the app does
+├── changes/          # planned changes to features already built
 ├── pages/            # what people see
 ├── components/       # reusable UI pieces
 ├── integrations/     # auth, email, payments, APIs
@@ -45,6 +46,15 @@ Goal: a host can create a dinner and guests can reply.
 ```
 
 Plan a whole set of features without building anything, then have the agent take them one at a time: it marks each `in-progress`, builds it through the usual docs → plan → code loop, marks it `done`, checks it off, and stops for review. At the end of a phase it stops so you can try the app before the next one.
+
+### Changing a feature that's already built
+
+Feature docs describe only what's built, so you can trust every rule in them is live. Planned work that touches a built feature lives in its own doc until it's built:
+
+- **An extension** is a new feature doc with `extends: [features/rsvp]`, e.g. `features/plus-ones.md`. It describes the new behavior and lists what will change in the feature it extends.
+- **A change** is a short doc in `docs/changes/` with `changes: [features/rsvp]`, saying what's true now and what will be true after, e.g. `changes/close-replies-early.md`.
+
+When one is built, the agent writes it into the docs it targets. That edit is the doc diff reviewers read. The plan is then marked `done` and kept as a record. If a target doc changes before its plan is built, `status` flags the plan to re-check.
 
 ### Noticing doc edits
 
