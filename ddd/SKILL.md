@@ -5,7 +5,9 @@ description: Build and change apps where a folder of linked markdown specs is th
 
 # Doc-driven development
 
-The app is described by a folder of plain-language markdown docs in `docs/`. Docs are upstream; code is downstream. People read and edit the docs; you keep the code in line with them.
+The app is described by a folder of plain-language markdown docs in `docs/`. Docs are upstream; code is downstream.
+
+Most of the time the person just asks you for things in chat. You write the docs: for every request, update the docs first, then the code. The person isn't expected to write docs. The docs are how they follow what you're doing, a reference for how the app works, and a plain-language history that teammates can review instead of code diffs. They may also edit a doc directly; when they do, you bring the code in line with it.
 
 Why this works: most people building with AI no longer read the code, but they do read prose. Making the prose structured, linked and authoritative turns the docs they were already generating into something they can own and change. The cost is an extra layer, so the layer has to stay honest: if docs and code disagree, the docs are wrong *or* the code is, and you must never let that go unnoticed.
 

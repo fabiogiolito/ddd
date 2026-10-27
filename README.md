@@ -6,7 +6,11 @@ A skill for AI agents that builds and changes apps from a folder of plain-langua
 
 ## Why
 
-Most people building with AI no longer read the code, but they do read prose. `ddd` makes that prose structured, linked and authoritative. Anyone can read how the app works, change a rule in a doc, and have the agent update the code to match.
+Most people building with AI no longer read the code. What matters is how the app works and what it does, and that is best said in natural language.
+
+With `ddd` you keep asking the agent for what you want. For every request it updates the docs first, then the code. You don't have to write the docs: they are how you follow what the agent is doing, and they stay behind as reference for how the app works. You can edit them directly if you want, and the agent will update the code to match.
+
+Because every change lands in the docs first, teammates can follow new features and changed rules by reading doc diffs in plain language instead of code diffs.
 
 ## How it works
 
