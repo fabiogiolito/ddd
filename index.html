@@ -54,7 +54,7 @@ pre code{background:none;padding:0;font-size:inherit}
 @media (max-width:640px){.idea{grid-template-columns:1fr}}
 
 /* file browser */
-.browser{display:grid;grid-template-columns:230px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:24px}
+.browser{display:grid;grid-template-columns:304px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:24px}
 .tree{border-right:1px solid var(--line);padding:12px 12px 14px;font:13px/1 "Geist Mono",monospace}
 .tree ul{list-style:none;margin:0;padding:0}
 .tree ul ul{margin-left:9px;padding-left:12px;border-left:1px solid var(--line)}
@@ -67,6 +67,7 @@ pre code{background:none;padding:0;font-size:inherit}
 .tree button{width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;border-radius:6px;cursor:pointer}
 .tree button:hover{background:var(--code)}
 .tree button[aria-selected="true"]{background:var(--hl);font-weight:500}
+.tree .tag{font-style:normal;font-size:11px;color:var(--faint);font-weight:400;margin-left:4px}
 .file{min-width:0}
 .file .path{font:12px "Geist Mono",monospace;color:var(--muted);padding:11px 18px;border-bottom:1px solid var(--line)}
 .file pre{padding:16px 18px 20px;color:var(--ink)}
@@ -98,6 +99,8 @@ th,td{text-align:left;padding:11px 12px 11px 0;border-bottom:1px solid var(--lin
 th{font-weight:500;font-size:13px;color:var(--muted)}
 td:first-child{white-space:nowrap;padding-right:20px}
 @media (max-width:640px){td:first-child{white-space:normal}}
+.open{font:500 .88em "Geist Mono",monospace;background:var(--code);color:var(--ink);border:0;border-radius:4px;padding:1px 5px;cursor:pointer;text-decoration:underline;text-decoration-color:var(--faint);text-underline-offset:3px}
+.open:hover{text-decoration-color:var(--ink)}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
 @media (max-width:640px){.cols{grid-template-columns:1fr;gap:0}}
 
@@ -182,6 +185,12 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
                 <li><span class="note">create-dinner.md</span></li>
                 <li><button role="tab" aria-selected="false" data-f="feature">rsvp.md</button></li>
                 <li><span class="note">reminders.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="plusones">plus-ones.md <em class="tag">planned</em></button></li>
+              </ul>
+            </li>
+            <li><span class="dir">changes/</span>
+              <ul>
+                <li><button role="tab" aria-selected="false" data-f="change">close-replies-early.md <em class="tag">planned</em></button></li>
               </ul>
             </li>
             <li><span class="dir">pages/</span>
@@ -251,6 +260,7 @@ guests can reply.
 <span class="h">## Phase 2: Bigger dinners</span>
 Goal: plus-ones and waitlists.
 - [ ] <span class="lk">[[features/plus-ones]]</span>
+- [ ] <span class="lk">[[changes/close-replies-early]]</span>
 - [ ] <span class="lk">[[features/waitlist]]</span>
 
 <span class="h">## Ideas</span>
@@ -308,6 +318,67 @@ whether they're coming.
 
 <span class="h">## Open questions</span>
 - Should guests see who said maybe?</pre>
+<pre id="f-plusones" hidden><span class="fm">---
+type: feature
+status: planned
+extends: [features/rsvp]
+uses: [data/rsvp]
+---</span>
+<span class="h"># Bring a plus-one</span>
+
+Guests who are going can bring one person
+with them.
+
+<span class="h">## Rules</span>
+- Guests who are going can add one
+  plus-one, by name.
+- A plus-one takes a seat. If there's room
+  for the guest but not the plus-one, both
+  join the waitlist.
+- Plus-ones show on the guest list under
+  who brought them.
+
+<span class="h">## Changes to rsvp</span>
+- "Each invite is for one person" no
+  longer applies.
+- An RSVP gets a plus-one field: their
+  guest's name, if any.
+- <span class="lk">[[components/guest-list]]</span> lists plus-ones
+  under their guest.
+
+<span class="h">## Acceptance criteria</span>
+- Given a guest going with a plus-one,
+  then "seats left" drops by two.
+- Given one seat left, when a guest replies
+  going with a plus-one, then both join
+  the waitlist.
+
+<span class="h">## Open questions</span>
+- Can a host turn plus-ones off for a dinner?</pre>
+<pre id="f-change" hidden><span class="fm">---
+type: change
+status: planned
+changes: [features/rsvp]
+---</span>
+<span class="h"># Close replies a day before the dinner</span>
+
+Hosts need a final headcount for the
+restaurant.
+
+<span class="h">## Now</span>
+- Replies close when the dinner starts.
+
+<span class="h">## After</span>
+- Replies close 24 hours before the
+  dinner starts.
+- On the last day before closing, the
+  dinner page says "Replies close
+  tomorrow at 19:00".
+
+<span class="h">## Acceptance criteria</span>
+- Given a dinner starting in 23 hours,
+  when a guest replies, then they see
+  "Replies are closed."</pre>
 <pre id="f-page" hidden><span class="fm">---
 type: page
 uses: [features/rsvp, components/guest-list]
@@ -363,6 +434,7 @@ understand what the app does.</span>
     <tr><td><code>roadmap.md</code></td><td>What gets built next: phases, in priority order</td></tr>
     <tr><td><code>data/</code></td><td>What the app remembers</td></tr>
     <tr><td><code>features/</code></td><td>What the app does, its rules, and how to tell it works</td></tr>
+    <tr><td><code>changes/</code></td><td>Planned changes to features that are already built</td></tr>
     <tr><td><code>pages/</code></td><td>What people see, top to bottom</td></tr>
     <tr><td><code>components/</code></td><td>Pieces reused across pages</td></tr>
     <tr><td><code>integrations/</code></td><td>What it talks to: sign-in, email, payments, APIs</td></tr>
@@ -373,25 +445,27 @@ understand what the app does.</span>
 <section id="workflow">
   <p class="kicker">Workflow</p>
   <h2>Docs first, then a plan, then the code</h2>
-  <p>Most changes start as a message to the agent. It finds the docs the change belongs in, updates them, explains what that means for the app, and asks before touching the code. Here's one small change, start to finish.</p>
+  <p>Most changes start as a message to the agent. It finds the docs the change belongs in, updates them, explains what that means for the app, and asks before touching the code. Here the request matches something already on the roadmap, so the agent builds that plan instead of starting from scratch.</p>
 
   <div class="term">
     <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
 <pre><span class="u">&gt; /ddd let guests bring a plus-one</span>
 
 <span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py status)
-  <span class="m">⎿  No changes since last apply (16 docs).</span>
+  <span class="m">⎿  No changes since last apply (18 docs).</span>
 
-<span class="m">⏺</span> The "one person per invite" rule is in features/rsvp.md,
-  and an RSVP needs somewhere to keep the plus-one's name.
-  Updating the docs first.
+<span class="m">⏺</span> This is already planned: features/plus-ones.md (phase 2).
+  It extends features/rsvp.md, so building it means merging
+  its rules into rsvp.md. Updating the docs first.
 
 <span class="m">⏺</span> Update(docs/features/rsvp.md)
-  <span class="m">⎿  1 line changed</span>
+  <span class="m">⎿  1 line changed, 2 added</span>
      <span class="m">15</span>  - Replies close when the dinner starts.
      <span class="m">16</span> <span class="del">- Each invite is for one person.</span>
      <span class="m">16</span> <span class="add">- Guests who are going can bring one plus-one.</span>
-     <span class="m">17</span>  - If the dinner is full, new "going"
+     <span class="m">17</span> <span class="add">- A plus-one takes a seat. If there's room for the</span>
+     <span class="m">18</span> <span class="add">  guest but not the plus-one, both join the waitlist.</span>
+     <span class="m">19</span>  - If the dinner is full, new "going"
 
 <span class="m">⏺</span> Update(docs/data/rsvp.md)
   <span class="m">⎿  1 line added</span>
@@ -410,11 +484,14 @@ understand what the app does.</span>
     the plus-one line to the guest list.
 
   <b>Question</b>
-  - Can a host turn plus-ones off for a dinner? None of the
-    docs say. I've added it to Open questions in
-    features/create-dinner.md; for now they're always allowed.
+  - The plan leaves one open: can a host turn plus-ones off
+    for a dinner? If that can wait, I'll build them as always
+    allowed and keep the question on the roadmap.
 
-  <b>Code</b>: 4 files, 2 tests added.
+  <b>When it's done</b>
+  - plus-ones.md is marked done and merged into rsvp.md.
+
+  <b>Code</b>: 5 files, 2 tests added.
 
 <span class="box">Apply these changes to the code?
 <span class="u">❯ 1. Yes, apply</span>
@@ -504,6 +581,14 @@ understand what the app does.</span>
   domain is the last item. Say "next" to continue.</pre>
   </div>
 
+  <h3>Changing a feature that's already built</h3>
+  <p>A built feature's doc describes only what's live, so you can trust every rule in it. Planned work that will change it lives in a doc of its own until it's built. There are two kinds, both in the file browser above:</p>
+  <ul>
+    <li><b>An extension</b> is a new feature that builds on an existing one, like <button class="open" data-open="plusones">features/plus-ones.md</button>. It says <code>extends: [features/rsvp]</code>, describes the new behavior, and lists what will change in the RSVP doc.</li>
+    <li><b>A change</b> adjusts how a built feature works, like <button class="open" data-open="change">changes/close-replies-early.md</button>. It says <code>changes: [features/rsvp]</code> and spells out what's true now and what will be true after.</li>
+  </ul>
+  <p>Both go on the roadmap like any other item. When one is built, the agent writes it into the docs it targets, which produces the doc diff in the Review section above, and marks the plan done. Plans aren't deleted: they stay as the record of why a rule changed. If the RSVP doc changes before a plan is built, the status check flags the plan so it gets re-checked against the current rules.</p>
+
   <p style="margin-top:20px">A few rules keep the plan honest:</p>
   <ul>
     <li>At the end of each phase the agent stops, even if you told it to keep going, so you can try the app before the next phase.</li>
@@ -554,7 +639,7 @@ understand what the app does.</span>
 (function(){
   var tabs=document.querySelectorAll('.tree button');
   var path=document.getElementById('fpath');
-  var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
+  var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',plusones:'docs/features/plus-ones.md',change:'docs/changes/close-replies-early.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
   var panes=document.querySelectorAll('.pane');
   var duo=document.querySelector('.duo'), code=document.querySelector('.pane.code');
   function fit(){
@@ -572,13 +657,17 @@ understand what the app does.</span>
     p.addEventListener('click',function(){if(p.classList.contains('back'))grow(p)});
     p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();grow(p)}});
   });
-  tabs.forEach(function(t){
-    t.addEventListener('click',function(){
-      tabs.forEach(function(o){o.setAttribute('aria-selected','false')});
-      t.setAttribute('aria-selected','true');
-      document.querySelectorAll('.file pre').forEach(function(p){p.hidden=true});
-      document.getElementById('f-'+t.dataset.f).hidden=false;
-      path.textContent=names[t.dataset.f];
+  function show(f){
+    tabs.forEach(function(o){o.setAttribute('aria-selected',o.dataset.f===f?'true':'false')});
+    document.querySelectorAll('.file pre').forEach(function(p){p.hidden=true});
+    document.getElementById('f-'+f).hidden=false;
+    path.textContent=names[f];
+  }
+  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.f)})});
+  document.querySelectorAll('.open').forEach(function(b){
+    b.addEventListener('click',function(){
+      show(b.dataset.open);
+      document.querySelector('.browser').scrollIntoView({behavior:'smooth',block:'start'});
     });
   });
 })();
