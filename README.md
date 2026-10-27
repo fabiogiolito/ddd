@@ -69,24 +69,41 @@ When one is built, the agent writes it into the docs it targets. That edit is th
 
 ### Noticing doc edits
 
-`ddd/scripts/docs_status.py` compares `docs/` against the last applied build, with no file watcher or server:
+`skills/ddd/scripts/docs_status.py` compares `docs/` against the last applied build, with no file watcher or server:
 
 ```bash
-python ddd/scripts/docs_status.py status        # what changed, what it affects, broken links
-python ddd/scripts/docs_status.py diff features/rsvp
-python ddd/scripts/docs_status.py mark-applied  # after code and tests match the docs
-python ddd/scripts/docs_status.py restore features/rsvp
-python ddd/scripts/docs_status.py roadmap       # progress per phase, anything out of sync
-python ddd/scripts/docs_status.py next          # the next item to work on
+python skills/ddd/scripts/docs_status.py status        # what changed, what it affects, broken links
+python skills/ddd/scripts/docs_status.py diff features/rsvp
+python skills/ddd/scripts/docs_status.py mark-applied  # after code and tests match the docs
+python skills/ddd/scripts/docs_status.py restore features/rsvp
+python skills/ddd/scripts/docs_status.py roadmap       # progress per phase, anything out of sync
+python skills/ddd/scripts/docs_status.py next          # the next item to work on
 ```
 
 It stores a hash and a copy of each doc as last built in `docs/.state.json` and `docs/.state/`. Standard-library Python only.
 
 ## Install
 
+With the [skills CLI](https://skills.sh) (Node 22.20 or later), from your project:
+
+```bash
+npx skills add fabiogiolito/ddd
+```
+
+It asks which agents to install for. To skip the questions, or to install for all your projects:
+
+```bash
+npx skills add fabiogiolito/ddd -a claude-code -y   # this project, Claude Code
+npx skills add fabiogiolito/ddd -g                  # every project
+```
+
+Other ways:
+
 - **Claude (web, desktop):** download [`ddd.skill`](ddd.skill), then add it under **Customize > Skills**.
-- **Claude Code:** copy the `ddd/` folder into `~/.claude/skills/` (or `.claude/skills/` in a project).
-- **Other agents:** point the agent at `ddd/SKILL.md`; it is plain markdown.
+- **By hand:** copy `skills/ddd/` into `.claude/skills/` in a project, or `~/.claude/skills/` for all of them.
+- **Other agents:** point the agent at `skills/ddd/SKILL.md`; it is plain markdown.
+
+Update later with `npx skills update ddd`.
 
 ## Use
 
@@ -100,7 +117,7 @@ It stores a hash and a copy of each doc as last built in `docs/.state.json` and 
 
 | Path | What it is |
 | --- | --- |
-| `ddd/SKILL.md` | The workflow and rules the agent follows |
-| `ddd/references/templates.md` | A template for each doc type |
-| `ddd/scripts/docs_status.py` | Change tracking for `docs/` |
+| `skills/ddd/SKILL.md` | The workflow and rules the agent follows |
+| `skills/ddd/references/templates.md` | A template for each doc type |
+| `skills/ddd/scripts/docs_status.py` | Change tracking for `docs/` |
 | `ddd.skill` | The packaged skill, ready to upload |
