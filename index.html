@@ -177,13 +177,8 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
       <ul>
         <li><span class="dir"><i class="ico i-folder-open"></i>docs/</span>
           <ul>
-            <li><button role="tab" aria-selected="true" data-f="app"><i class="ico i-md"></i>app.md</button></li>
+            <li><button role="tab" aria-selected="false" data-f="app"><i class="ico i-md"></i>app.md</button></li>
             <li><button role="tab" aria-selected="false" data-f="roadmap"><i class="ico i-md"></i>roadmap.md</button></li>
-            <li><span class="dir"><i class="ico i-folder"></i>.tech/</span>
-              <ul>
-                <li><button role="tab" aria-selected="false" data-f="tech"><i class="ico i-md"></i>stack.md</button></li>
-              </ul>
-            </li>
             <li><span class="dir"><i class="ico i-folder"></i>components/</span>
               <ul>
                 <li><span class="note"><i class="ico i-md"></i>guest-list.md</span></li>
@@ -199,7 +194,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
             <li><span class="dir"><i class="ico i-folder"></i>features/</span>
               <ul>
                 <li><span class="note"><i class="ico i-md"></i>create-dinner.md</span></li>
-                <li><button role="tab" aria-selected="false" data-f="feature"><i class="ico i-md"></i>rsvp.md</button></li>
+                <li><button role="tab" aria-selected="true" data-f="feature"><i class="ico i-md"></i>rsvp.md</button></li>
               </ul>
             </li>
             <li><span class="dir"><i class="ico i-folder"></i>integrations/</span>
@@ -230,13 +225,18 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
                 </li>
               </ul>
             </li>
+            <li><span class="dir"><i class="ico i-folder"></i>.tech/</span>
+              <ul>
+                <li><button role="tab" aria-selected="false" data-f="tech"><i class="ico i-md"></i>stack.md</button></li>
+              </ul>
+            </li>
           </ul>
         </li>
       </ul>
     </div>
     <div class="file">
-<div class="path" id="fpath">docs/app.md</div>
-<pre id="f-app"><span class="fm">---
+<div class="path" id="fpath">docs/features/rsvp.md</div>
+<pre id="f-app" hidden><span class="fm">---
 type: app
 ---</span>
 <span class="h"># Dinner club</span>
@@ -294,7 +294,7 @@ A guest's reply to one dinner invite.
 <span class="h">## Rules</span>
 - One RSVP per guest per dinner. A new
   reply replaces the old one.</pre>
-<pre id="f-feature" hidden><span class="fm">---
+<pre id="f-feature"><span class="fm">---
 type: feature
 uses: [data/rsvp, data/dinner, integrations/email]
 shown-on: [pages/dinner]
