@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ddd — doc-driven development</title>
+<meta name="description" content="A skill for AI agents that builds apps from a folder of plain-language markdown docs. Edit the doc, the agent updates the code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ec; --paper:#fffdf8; --ink:#1d1b17; --muted:#6b665c; --line:#e3ddd0;
+  --accent:#2f5d50; --accent-soft:#e3ece7; --add:#2f7a4f; --del:#b0413e; --code:#f0ebe0;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15140f; --paper:#1c1b16; --ink:#ece7dc; --muted:#a39d90; --line:#33302a;
+    --accent:#8cc5b0; --accent-soft:#22302a; --add:#7fc79a; --del:#e08b86; --code:#24221c;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px}
+header{padding:72px 0 48px;border-bottom:1px solid var(--line)}
+.tag{font:500 13px/1 "JetBrains Mono",monospace;color:var(--accent);letter-spacing:.04em}
+h1{font:600 clamp(40px,8vw,72px)/1.02 Fraunces,Georgia,serif;margin:16px 0 20px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:clamp(18px,2.4vw,21px);color:var(--muted);max-width:640px;margin:0 0 28px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-block;padding:11px 18px;border-radius:8px;font-weight:600;text-decoration:none;font-size:15px}
+.btn.primary{background:var(--accent);color:var(--paper)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink);background:var(--paper)}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+h2{font:600 30px/1.15 Fraunces,Georgia,serif;margin:0 0 12px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 28px;max-width:640px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card .n{font:500 13px "JetBrains Mono",monospace;color:var(--accent)}
+.card h3{margin:6px 0 6px;font-size:17px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s}
+.step{position:relative;padding:18px 16px 18px 0}
+.step:not(:last-child)::after{content:"→";position:absolute;right:8px;top:16px;color:var(--muted)}
+.step b{display:block;font-size:15px;margin-bottom:4px}
+.step span{color:var(--muted);font-size:14px;display:block;padding-right:20px}
+.step .k{font:500 12px "JetBrains Mono",monospace;color:var(--accent);display:block;margin-bottom:6px}
+@media (max-width:640px){.loop{grid-template-columns:1fr 1fr}.step:nth-child(2)::after{content:""}}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow-x:auto;font:13.5px/1.55 "JetBrains Mono",monospace;margin:0}
+code{font-family:"JetBrains Mono",monospace;font-size:.9em}
+p code,li code,td code{background:var(--code);padding:1px 5px;border-radius:4px}
+.c{color:var(--muted)}.a{color:var(--accent)}.add{color:var(--add)}.del{color:var(--del)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.label{font:500 12px "JetBrains Mono",monospace;color:var(--muted);margin:0 0 8px;text-transform:uppercase;letter-spacing:.06em}
+table{width:100%;border-collapse:collapse;font-size:15px;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.install{display:grid;gap:12px}
+.install .card h3{margin-top:0}
+footer{padding:36px 0 56px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="tag">/ddd · a skill for AI agents</div>
+    <h1>Edit the doc.<br><em>The code follows.</em></h1>
+    <p class="lede">Doc-driven development keeps your app described in a folder of plain-language markdown docs. You read and change the docs; your agent keeps the code in line with them.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/fabiogiolito/ddd/raw/main/ddd.skill">Download ddd.skill</a>
+      <a class="btn ghost" href="https://github.com/fabiogiolito/ddd">View on GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <h2>Why docs, not code</h2>
+    <p class="sub">Most people building with AI no longer read the code. They already write prompts and notes, but those get lost. ddd turns them into a structured, linked description of the whole app that anyone on the team can read and change.</p>
+    <div class="rules">
+      <div class="card"><div class="n">01</div><h3>Docs first</h3><p>Every change, from a doc edit or a chat prompt, lands in <code>docs/</code> before it lands in code.</p></div>
+      <div class="card"><div class="n">02</div><h3>Plan, then apply</h3><p>The agent shows what changed and what it will do to the code, then waits for a yes. Nothing rebuilds silently.</p></div>
+      <div class="card"><div class="n">03</div><h3>Behavior, not implementation</h3><p>Docs say what the app does, in words a product manager would use. Technical choices live in <code>.tech/</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The loop</h2>
+    <p class="sub">No server watches your files. At the start of every turn the agent checks what changed since the last build, so an edit you forgot to mention is never missed.</p>
+    <div class="loop">
+      <div class="step"><span class="k">you</span><b>Edit a doc</b><span>Change a rule, add a field, rename a page.</span></div>
+      <div class="step"><span class="k">status</span><b>Agent notices</b><span>Lists changed docs and the docs they affect.</span></div>
+      <div class="step"><span class="k">plan</span><b>You review</b><span>What changes for users, conflicts, code touched.</span></div>
+      <div class="step"><span class="k">apply</span><b>Code follows</b><span>Docs, code and tests updated, then marked built.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What it looks like</h2>
+    <p class="sub">Each folder answers one question. Docs link to each other, and every feature ends with acceptance criteria that become tests.</p>
+    <div class="two">
+      <div>
+        <p class="label">docs/</p>
+<pre><span class="a">docs/</span>
+├── app.md        <span class="c"># who uses it, glossary</span>
+├── data/         <span class="c"># what it remembers</span>
+├── features/     <span class="c"># what it does</span>
+├── pages/        <span class="c"># what people see</span>
+├── components/   <span class="c"># reusable pieces</span>
+├── integrations/ <span class="c"># auth, email, APIs</span>
+└── .tech/        <span class="c"># stack, for coders</span></pre>
+      </div>
+      <div>
+        <p class="label">features/approve-request.md</p>
+<pre><span class="c">---
+uses: [data/leave-request]
+shown-on: [pages/my-requests]
+---</span>
+# Approve a leave request
+
+## Rules
+- Only the requester's
+  <span class="a">[[data/person#manager]]</span> decides.
+- Rejecting requires a reason.
+
+## Acceptance criteria
+- Given a rejection with no reason,
+  then it is blocked.</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>A change, start to finish</h2>
+    <p class="sub">Someone edits one line. The agent turns it into a plan written for the person who made the edit, not for an engineer.</p>
+    <div class="two">
+      <div>
+        <p class="label">The edit</p>
+<pre><span class="del">- Rejecting requires a reason.</span>
+<span class="add">+ Rejecting does not require a reason.</span></pre>
+      </div>
+      <div>
+        <p class="label">The plan</p>
+<pre><b>What this means for the app</b>
+- Managers can reject with no reason.
+- The email says "No reason given".
+
+<b>Also affected</b>
+- integrations/email.md
+
+<b>Code</b>: 2 files, 1 test updated.
+
+Apply?</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Commands</h2>
+    <p class="sub">Invoke the skill with <code>/ddd</code>. The bundled script does the bookkeeping, with no dependencies beyond Python.</p>
+    <table>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>/ddd</code></td><td>Reports what changed in the docs since the last build</td></tr>
+      <tr><td><code>/ddd &lt;request&gt;</code></td><td>Starts an app, applies a doc edit, or makes a change, docs first</td></tr>
+      <tr><td><code>docs_status.py status</code></td><td>Changed docs, what they affect, broken links</td></tr>
+      <tr><td><code>docs_status.py diff &lt;doc&gt;</code></td><td>Line diff against the last built version</td></tr>
+      <tr><td><code>docs_status.py mark-applied</code></td><td>Records the docs as built, after code and tests pass</td></tr>
+      <tr><td><code>docs_status.py restore &lt;doc&gt;</code></td><td>Puts a doc back to its last built version</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Install</h2>
+    <div class="install">
+      <div class="card"><h3>Claude (web and desktop)</h3><p>Download <a href="https://github.com/fabiogiolito/ddd/raw/main/ddd.skill">ddd.skill</a> and add it under Customize &gt; Skills.</p></div>
+      <div class="card"><h3>Claude Code</h3><p>Copy the <code>ddd/</code> folder from the repo into <code>~/.claude/skills/</code>, or into <code>.claude/skills/</code> inside one project.</p></div>
+      <div class="card"><h3>Other agents</h3><p>Point your agent at <code>ddd/SKILL.md</code>. It is plain markdown.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">ddd by <a href="https://github.com/fabiogiolito">Fabio Giolito</a> · <a href="https://github.com/fabiogiolito/ddd">Source on GitHub</a></div>
+</footer>
+</body>
+</html>
