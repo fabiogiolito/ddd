@@ -55,13 +55,18 @@ pre code{background:none;padding:0;font-size:inherit}
 
 /* file browser */
 .browser{display:grid;grid-template-columns:230px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:24px}
-.tree{border-right:1px solid var(--line);padding:12px 8px;font:13px/1 "Geist Mono",monospace}
-.tree .dir{color:var(--muted);padding:7px 10px 5px}
-.tree .dir.sub{padding-left:10px}
-.tree button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;padding:7px 10px 7px 26px;border-radius:6px;cursor:pointer}
+.tree{border-right:1px solid var(--line);padding:12px 12px 14px;font:13px/1 "Geist Mono",monospace}
+.tree ul{list-style:none;margin:0;padding:0}
+.tree ul ul{margin-left:9px;padding-left:12px;border-left:1px solid var(--line)}
+.tree li{position:relative}
+.tree ul ul>li::before{content:"";position:absolute;left:-12px;top:14px;width:9px;border-top:1px solid var(--line)}
+.tree ul ul>li:last-child::after{content:"";position:absolute;left:-13px;top:15px;bottom:0;width:2px;background:var(--paper)}
+.tree .dir,.tree .note,.tree button{display:block;padding:7px 8px;white-space:nowrap}
+.tree .dir{color:var(--muted)}
+.tree .note{color:var(--faint)}
+.tree button{width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;border-radius:6px;cursor:pointer}
 .tree button:hover{background:var(--code)}
 .tree button[aria-selected="true"]{background:var(--hl);font-weight:500}
-.tree .note{color:var(--faint);padding:7px 10px 7px 26px}
 .file{min-width:0}
 .file .path{font:12px "Geist Mono",monospace;color:var(--muted);padding:11px 18px;border-bottom:1px solid var(--line)}
 .file pre{padding:16px 18px 20px;color:var(--ink)}
@@ -71,10 +76,9 @@ pre code{background:none;padding:0;font-size:inherit}
 .file .cm{color:var(--muted)}
 @media (max-width:700px){
   .browser{grid-template-columns:1fr}
-  .tree{border-right:0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px;padding:10px}
-  .tree .dir,.tree .note{display:none}
-  .tree button{width:auto;padding:7px 10px;background:var(--code)}
+  .tree{border-right:0;border-bottom:1px solid var(--line)}
 }
+
 
 /* terminal */
 .term{background:var(--term);color:var(--term-ink);border-radius:12px;overflow:hidden;margin-top:24px;border:1px solid var(--term-line)}
@@ -122,7 +126,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
     <div><div class="t">The agent handles</div><p>Writing the docs, then the code, tests, framework choices and plumbing, and keeping all of it consistent with the docs.</p></div>
   </div>
   <h3>Changes anyone can follow</h3>
-  <p>Because every change lands in the docs first, the history of the docs is a history of the app in plain language. Teammates can review a new feature or a changed rule by reading a doc diff ("rejecting no longer requires a reason") instead of decoding a code diff. That includes people who don't code: product managers, designers, the person who asked for the tool.</p>
+  <p>Because every change lands in the docs first, the history of the docs is a history of the app in plain language. Teammates can review a new feature or a changed rule by reading a doc diff ("guests who are going can bring one plus-one") instead of decoding a code diff. That includes people who don't code: product managers, designers, the person who asked for the tool.</p>
 </section>
 
 <section id="structure">
@@ -132,121 +136,157 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
 
   <div class="browser">
     <div class="tree" role="tablist" aria-label="Files">
-      <div class="dir">docs/</div>
-      <button role="tab" aria-selected="true" data-f="app">app.md</button>
-      <div class="dir sub">data/</div>
-      <button role="tab" aria-selected="false" data-f="data">leave-request.md</button>
-      <div class="note">person.md</div>
-      <div class="dir sub">features/</div>
-      <button role="tab" aria-selected="false" data-f="feature">approve-request.md</button>
-      <div class="note">submit-request.md</div>
-      <div class="dir sub">pages/</div>
-      <button role="tab" aria-selected="false" data-f="page">my-requests.md</button>
-      <div class="dir sub">components/</div>
-      <div class="note">request-card.md</div>
-      <div class="dir sub">integrations/</div>
-      <button role="tab" aria-selected="false" data-f="email">email.md</button>
-      <div class="dir sub">.tech/</div>
-      <button role="tab" aria-selected="false" data-f="tech">stack.md</button>
+      <ul>
+        <li><span class="dir">docs/</span>
+          <ul>
+            <li><button role="tab" aria-selected="true" data-f="app">app.md</button></li>
+            <li><span class="dir">data/</span>
+              <ul>
+                <li><span class="note">dinner.md</span></li>
+                <li><span class="note">person.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="data">rsvp.md</button></li>
+              </ul>
+            </li>
+            <li><span class="dir">features/</span>
+              <ul>
+                <li><span class="note">create-dinner.md</span></li>
+                <li><button role="tab" aria-selected="false" data-f="feature">rsvp.md</button></li>
+                <li><span class="note">reminders.md</span></li>
+              </ul>
+            </li>
+            <li><span class="dir">pages/</span>
+              <ul>
+                <li><button role="tab" aria-selected="false" data-f="page">dinner.md</button></li>
+                <li><span class="note">my-dinners.md</span></li>
+              </ul>
+            </li>
+            <li><span class="dir">components/</span>
+              <ul>
+                <li><span class="note">guest-list.md</span></li>
+              </ul>
+            </li>
+            <li><span class="dir">integrations/</span>
+              <ul>
+                <li><button role="tab" aria-selected="false" data-f="email">email.md</button></li>
+              </ul>
+            </li>
+            <li><span class="dir">.tech/</span>
+              <ul>
+                <li><button role="tab" aria-selected="false" data-f="tech">stack.md</button></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
     <div class="file">
 <div class="path" id="fpath">docs/app.md</div>
 <pre id="f-app"><span class="fm">---
 type: app
 ---</span>
-<span class="h"># Leave requests</span>
+<span class="h"># Dinner club</span>
 
-Employees request time off, managers approve it,
-and everyone can see who is away.
+Hosts plan dinners, invite friends,
+and see who's coming.
 
 <span class="h">## Who uses it</span>
-- Employee: requests leave, sees their balance
-- Manager: decides on their team's requests
-- Admin: manages people and public holidays
+- Host: creates dinners, invites people,
+  sees the guest list
+- Guest: replies to an invite, sees who
+  else is coming
 
 <span class="h">## What it does</span>
-- <span class="lk">[[features/submit-request]]</span>
-- <span class="lk">[[features/approve-request]]</span>
+- <span class="lk">[[features/create-dinner]]</span>
+- <span class="lk">[[features/rsvp]]</span>
+- <span class="lk">[[features/reminders]]</span>
 
 <span class="h">## Glossary</span>
-- Balance: leave days left this year
-- Working day: Mon–Fri, excluding public holidays</pre>
+- Dinner: one event with a date, a place
+  and a seat limit
+- RSVP: a guest's reply: going, maybe
+  or can't go</pre>
 <pre id="f-data" hidden><span class="fm">---
 type: data
 ---</span>
-<span class="h"># Leave request</span>
+<span class="h"># RSVP</span>
 
-One person asking for one block of time off.
+A guest's reply to one dinner invite.
 
-| Field         | Meaning                        |
-|---------------|--------------------------------|
-| requester     | <span class="lk">[[data/person]]</span> asking       |
-| start, end    | first and last day, inclusive  |
-| type          | vacation, sick or unpaid       |
-| status        | pending, approved, rejected,   |
-|               | cancelled                      |
-| decision note | the manager's reason           |
+| Field  | Meaning                      |
+|--------|------------------------------|
+| guest  | <span class="lk">[[data/person]]</span> who was invited |
+| dinner | <span class="lk">[[data/dinner]]</span> they replied to |
+| answer | going, maybe or can't go     |
+| note   | optional message to the host |
 
 <span class="h">## Rules</span>
-- End is on or after start.
-- Days are counted as working days.</pre>
+- One RSVP per guest per dinner. A new
+  reply replaces the old one.</pre>
 <pre id="f-feature" hidden><span class="fm">---
 type: feature
-uses: [data/leave-request, integrations/email]
-shown-on: [pages/my-requests]
+uses: [data/rsvp, data/dinner, integrations/email]
+shown-on: [pages/dinner]
 ---</span>
-<span class="h"># Approve a leave request</span>
+<span class="h"># Reply to an invite</span>
 
-A manager reviews a pending request from
-their team and approves or rejects it.
+A guest opens their invite and says
+whether they're coming.
 
 <span class="h">## Who</span>
-- Only the requester's <span class="lk">[[data/person#manager]]</span>.
-- Admins can decide on any request.
+- Anyone with the invite link.
+- Guests don't need an account. They give
+  their name and email once.
 
 <span class="h">## Rules</span>
-- Only pending requests can be decided.
-- Rejecting requires a reason.
-- Approving deducts the days from the
-  requester's balance.
+- Replies close when the dinner starts.
+- Each invite is for one person.
+- If the dinner is full, new "going"
+  replies join a waitlist.
 
 <span class="h">## After</span>
-- Requester gets <span class="lk">[[integrations/email#decision]]</span>
+- Host gets <span class="lk">[[integrations/email#new-reply]]</span>
 
 <span class="h">## Acceptance criteria</span>
-- Given a pending request, when the manager
-  approves it, then the balance drops.
-- Given a rejection with no reason,
-  then it is blocked with "add a reason".
+- Given a dinner with seats left, when a
+  guest replies "going", then they appear
+  on the guest list.
+- Given a full dinner, when a guest
+  replies "going", then they join the
+  waitlist.
 
 <span class="h">## Open questions</span>
-- Can managers approve their own requests?</pre>
+- Should guests see who said maybe?</pre>
 <pre id="f-page" hidden><span class="fm">---
 type: page
-uses: [features/approve-request, components/request-card]
+uses: [features/rsvp, components/guest-list]
 ---</span>
-<span class="h"># My requests</span>
+<span class="h"># Dinner</span>
 
-Where employees track their requests and
-managers review their team's.
+The page a guest lands on from an invite.
 
 <span class="h">## What's on it</span>
-1. Balance at the top: days left this year.
-2. My requests, newest first, each as a
-   <span class="lk">[[components/request-card]]</span>.
-3. For managers, a "To review" list of
-   pending requests, oldest first.
-4. Empty state: "Nothing here yet."</pre>
+1. Dinner name, date, place and the
+   host's note.
+2. Reply buttons: Going, Maybe, Can't go.
+3. Seats left, e.g. "4 of 10 seats left".
+4. Who's coming, as a <span class="lk">[[components/guest-list]]</span>.
+5. After the dinner starts:
+   "Replies are closed."</pre>
 <pre id="f-email" hidden><span class="fm">---
 type: integration
 ---</span>
 <span class="h"># Email</span>
 
-<span class="h">## Decision</span>
-- When: a request is approved or rejected.
-- To: the requester.
-- Says: the decision, the dates, and the
-  manager's reason if there is one.</pre>
+<span class="h">## New reply</span>
+- When: a guest replies or changes
+  their reply.
+- To: the host.
+- Says: who replied, their answer and
+  their note.
+
+<span class="h">## Reminder</span>
+- When: the day before the dinner.
+- To: guests who said going or maybe.</pre>
 <pre id="f-tech" hidden><span class="fm">---
 type: tech
 ---</span>
@@ -260,9 +300,8 @@ understand what the app does.</span>
 - Tests: one file per feature doc
 
 <span class="h">## Mapping</span>
-- data/leave-request → table leave_requests
-- features/approve-request
-  → src/features/approve-request.ts</pre>
+- data/rsvp → table rsvps
+- features/rsvp → src/features/rsvp.ts</pre>
     </div>
   </div>
 
@@ -284,41 +323,45 @@ understand what the app does.</span>
   <p>Most changes start as a message to the agent. It finds the docs the change belongs in, updates them, explains what that means for the app, and asks before touching the code. Here's one small change, start to finish.</p>
 
   <div class="term">
-    <div class="bar"><i></i><i></i><i></i><span>~/Sites/leave-app — claude</span></div>
-<pre><span class="u">&gt; /ddd managers shouldn't have to give a reason when rejecting</span>
+    <div class="bar"><i></i><i></i><i></i><span>~/Sites/dinner-club — claude</span></div>
+<pre><span class="u">&gt; /ddd let guests bring a plus-one</span>
 
 <span class="m">⏺</span> Bash(python ddd/scripts/docs_status.py status)
-  <span class="m">⎿  No changes since last apply (14 docs).</span>
+  <span class="m">⎿  No changes since last apply (16 docs).</span>
 
-<span class="m">⏺</span> The rule lives in features/approve-request.md, and the
-  rejection email in integrations/email.md uses the reason.
+<span class="m">⏺</span> The "one person per invite" rule is in features/rsvp.md,
+  and an RSVP needs somewhere to keep the plus-one's name.
   Updating the docs first.
 
-<span class="m">⏺</span> Update(docs/features/approve-request.md)
+<span class="m">⏺</span> Update(docs/features/rsvp.md)
   <span class="m">⎿  1 line changed</span>
-     <span class="m">14</span>  - Only pending requests can be decided.
-     <span class="m">15</span> <span class="del">- Rejecting requires a reason.</span>
-     <span class="m">15</span> <span class="add">- Rejecting does not require a reason.</span>
-     <span class="m">16</span>  - Approving deducts the days from the
+     <span class="m">15</span>  - Replies close when the dinner starts.
+     <span class="m">16</span> <span class="del">- Each invite is for one person.</span>
+     <span class="m">16</span> <span class="add">- Guests who are going can bring one plus-one.</span>
+     <span class="m">17</span>  - If the dinner is full, new "going"
 
-<span class="m">⏺</span> Update(docs/integrations/email.md)
-  <span class="m">⎿  1 line changed</span>
-     <span class="m">9</span>   - Says: the decision, the dates, and the
-     <span class="m">10</span> <span class="del">  manager's reason if there is one.</span>
-     <span class="m">10</span> <span class="add">  manager's reason, or "No reason given".</span>
+<span class="m">⏺</span> Update(docs/data/rsvp.md)
+  <span class="m">⎿  1 line added</span>
+     <span class="m">13</span>  | note     | optional message to the host |
+     <span class="m">14</span> <span class="add">| plus-one | their guest's name, if any   |</span>
 
 <span class="m">⏺</span> <b>Plan</b>
 
   <b>What changes for people using the app</b>
-  - Managers can reject a request with the reason left empty.
-  - The rejection email says "No reason given" in that case.
+  - Guests replying "going" can add a plus-one's name.
+  - Plus-ones take a seat, so "seats left" counts them.
+  - Plus-ones show on the guest list under who brought them.
 
-  <b>Conflicts or questions</b>
-  - None. The acceptance criterion "a rejection with no reason
-    is blocked" no longer holds, so I'll replace it with "a
-    rejection with no reason is saved".
+  <b>Also affected</b>
+  - pages/dinner.md and components/guest-list.md: I'll add
+    the plus-one line to the guest list.
 
-  <b>Code</b>: 2 files, 1 test changed.
+  <b>Question</b>
+  - Can a host turn plus-ones off for a dinner? None of the
+    docs say. I've added it to Open questions in
+    features/create-dinner.md; for now they're always allowed.
+
+  <b>Code</b>: 4 files, 2 tests added.
 
 <span class="box">Apply these changes to the code?
 <span class="u">❯ 1. Yes, apply</span>
@@ -379,7 +422,7 @@ understand what the app does.</span>
 (function(){
   var tabs=document.querySelectorAll('.tree button');
   var path=document.getElementById('fpath');
-  var names={app:'docs/app.md',data:'docs/data/leave-request.md',feature:'docs/features/approve-request.md',page:'docs/pages/my-requests.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
+  var names={app:'docs/app.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
       tabs.forEach(function(o){o.setAttribute('aria-selected','false')});
