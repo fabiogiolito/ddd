@@ -156,15 +156,12 @@ footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);f
 <section id="idea">
   <p class="kicker">The idea</p>
   <h2>The code is not the point anymore</h2>
-  <p>AI agents now write most of the code, and most people building with them no longer read it. What still matters is how the app works and what it does. That is a question of behavior, and behavior is best expressed in natural language.</p>
-  <p>So ddd moves the source of truth. Docs describe the app; the code is treated like build output, generated from the docs and regenerated when they change. You can still open the code, but you don't have to.</p>
-  <p>You don't have to write the docs either. You keep talking to the agent the way you do now. For every request, it updates the docs first, then the code. The docs are how you follow what the agent is doing, and they stay behind as reference for how the app works. You can edit them directly when that's quicker, but nothing requires it.</p>
+  <p>AI writes the code now, and most of us no longer read it. What still matters is what the app does, and that's best said in plain language.</p>
+  <p>So ddd makes the docs the source of truth. You keep asking the agent for what you want; it updates the docs first, then the code. You don't have to write or edit the docs, but you can read them to follow along, and so can anyone on your team.</p>
   <div class="idea">
-    <div><div class="t">You decide</div><p>What the app does, who can do what, the rules, the screens. You say it in chat; you can read it, and change it if you like, in the docs.</p></div>
-    <div><div class="t">The agent handles</div><p>Writing the docs, then the code, tests, framework choices and plumbing, and keeping all of it consistent with the docs.</p></div>
+    <div><div class="t">You decide</div><p>What the app does, who can do what, the rules, the screens.</p></div>
+    <div><div class="t">The agent handles</div><p>The docs, the code, the tests, and keeping them in sync.</p></div>
   </div>
-  <h3>Changes anyone can follow</h3>
-  <p>Because every change lands in the docs first, the history of the docs is a history of the app in plain language. Teammates can review a new feature or a changed rule by reading a doc diff ("guests who are going can bring one plus-one") instead of decoding a code diff. That includes people who don't code: product managers, designers, the person who asked for the tool.</p>
 </section>
 
 <section id="structure">
