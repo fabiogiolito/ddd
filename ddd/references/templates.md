@@ -1,8 +1,8 @@
 # Doc templates
 
-One template per doc type. Copy the shape, not the example content. Sections marked *(optional)* can be dropped when empty; everything else stays, even if short.
+One template per doc type. Copy the shape, not the example content. Sections marked *(optional)* can be dropped when empty; everything else stays, even if short. The examples describe a small dinner-club app: hosts create dinners and invite friends, guests reply.
 
-Contents: app.md · data · features · pages · components · integrations · .tech
+Contents: app.md · roadmap.md · data · features · pages · components · integrations · .tech
 
 ---
 
@@ -20,21 +20,53 @@ type: app
 ## Who uses it
 | Role | What they do |
 |------|--------------|
-| Employee | Requests leave, sees their balance |
-| Manager | Approves or rejects their team's requests |
-| Admin | Manages people and holidays |
+| Host | Creates dinners, invites people, sees the guest list |
+| Guest | Replies to an invite, sees who else is coming |
 
 ## What it does
-- [[features/submit-request]]
-- [[features/approve-request]]
+- [[features/create-dinner]]
+- [[features/rsvp]]
 
 ## Glossary
-- **Balance**: days of leave a person has left this year.
-- **Working day**: Monday to Friday, excluding public holidays.
+- **Dinner**: one event with a date, a place and a seat limit.
+- **RSVP**: a guest's reply: going, maybe or can't go.
 
 ## Out of scope *(optional)*
-- Payroll, expenses.
+- Payments, splitting the bill.
 ```
+
+---
+
+## docs/roadmap.md
+
+```markdown
+---
+type: roadmap
+---
+
+# Roadmap
+
+## Phase 1: Core
+Goal: a host can create a dinner and guests can reply.
+- [x] [[features/create-dinner]]
+- [ ] [[features/rsvp]]
+- [ ] [[features/reminders]]
+- [ ] Set up a sending domain for email
+
+## Phase 2: Bigger dinners
+Goal: dinners with plus-ones and waitlists.
+- [ ] [[features/plus-ones]]
+- [ ] [[features/waitlist]]
+
+## Ideas
+- [ ] [[features/photos]]
+- Splitting the bill
+```
+
+- Each `##` is a phase with a one-line goal. Phase 1 is the smallest version someone would use.
+- Items are in priority order. A checked box means the feature's status is `done`.
+- Feature items link to their doc. Setup work with no feature doc is a plain line.
+- `## Ideas` (or `## Backlog`) is never picked up by `next`. Items there may have a checkbox or not.
 
 ---
 
@@ -51,18 +83,20 @@ type: data
 
 | Field | Meaning | Required |
 |-------|---------|----------|
-| requester | [[data/person]] asking for leave | yes |
-| start, end | first and last day off, inclusive | yes |
-| status | pending, approved, rejected, cancelled | yes |
+| guest | [[data/person]] who was invited | yes |
+| dinner | [[data/dinner]] they replied to | yes |
+| answer | going, maybe or can't go | yes |
+| note | message to the host | no |
+| plus-one | their guest's name *(planned: [[features/plus-ones]])* | no |
 
 ## Rules *(optional)*
-- End is on or after start.
+- One RSVP per guest per dinner. A new reply replaces the old one.
 
 ## Who can see it *(optional)*
-- The requester, their manager, admins.
+- The guest and the host.
 ```
 
-Field names are written as people say them, not as column names. `.tech/` maps them to code if needed.
+Field names are written as people say them, not as column names. `.tech/` maps them to code if needed. Parts that exist only for an unbuilt feature carry a `*(planned: …)*` note until that feature is done.
 
 ---
 
@@ -71,37 +105,41 @@ Field names are written as people say them, not as column names. `.tech/` maps t
 ```markdown
 ---
 type: feature
-uses: [data/leave-request, data/person, integrations/email]
-shown-on: [pages/my-requests, pages/team-calendar]
+status: planned
+uses: [data/rsvp, data/dinner, integrations/email]
+shown-on: [pages/dinner]
 ---
 
-# <Verb phrase: "Approve a leave request">
+# <Verb phrase: "Reply to an invite">
 
 <One or two sentences: what happens and why it matters.>
 
 ## Who
-- Only the requester's [[data/person#manager]] can decide.
+- Anyone with the invite link.
+- Guests don't need an account. They give their name and email once.
 
 ## Rules
-- A request can only be decided while it is **pending**.
-- Rejecting requires a reason.
+- Replies close when the dinner starts.
+- If the dinner is full, new "going" replies join a waitlist.
 
 ## States *(optional, when something moves through stages)*
-pending → approved
-pending → rejected
+invited → going | maybe | can't go
+going → can't go (frees a seat)
 
 ## What happens after *(optional)*
-- Requester gets an email: [[integrations/email#decision]]
+- Host gets [[integrations/email#new-reply]]
 
 ## Acceptance criteria
-- Given a pending request, when the manager approves it,
-  then its status is approved and the balance drops.
-- Given a rejection with no reason, then it is blocked
-  with "add a reason".
+- Given a dinner with seats left, when a guest replies "going",
+  then they appear on the guest list.
+- Given a full dinner, when a guest replies "going",
+  then they join the waitlist.
 
 ## Open questions *(optional)*
-- Can managers approve their own requests?
+- Should guests see who said maybe?
 ```
+
+`status` is one of `idea`, `planned`, `in-progress`, `done`. An `idea` doc can be just the title, a sentence and its open questions; it needs rules and acceptance criteria before it becomes `planned`.
 
 ---
 
@@ -110,7 +148,7 @@ pending → rejected
 ```markdown
 ---
 type: page
-uses: [features/approve-request, components/request-card]
+uses: [features/rsvp, components/guest-list]
 ---
 
 # <Page name>
@@ -118,19 +156,20 @@ uses: [features/approve-request, components/request-card]
 <Who comes here and what they come to do.>
 
 ## Who can open it
-- Managers and admins.
+- Anyone with the invite link.
 
 ## What's on it
-1. A list of pending requests from the manager's team, oldest first,
-   each shown as a [[components/request-card]].
-2. Approve and Reject buttons on each card.
-3. An empty state: "Nothing to review."
+1. Dinner name, date, place and the host's note.
+2. Reply buttons: Going, Maybe, Can't go.
+3. Seats left, e.g. "4 of 10 seats left".
+4. Who's coming, as a [[components/guest-list]].
+5. After the dinner starts: "Replies are closed."
 
 ## Actions
-- Approve → [[features/approve-request]]
+- Reply → [[features/rsvp]]
 
 ## Look and feel *(optional)*
-- Pending requests older than 3 days are highlighted.
+- The reply buttons stay visible while scrolling on phones.
 ```
 
 Describe layout as an ordered list from top to bottom, not as coordinates or CSS.
@@ -142,8 +181,8 @@ Describe layout as an ordered list from top to bottom, not as coordinates or CSS
 ```markdown
 ---
 type: component
-shown-on: [pages/my-requests, pages/team-calendar]
-uses: [data/leave-request]
+shown-on: [pages/dinner, pages/my-dinners]
+uses: [data/rsvp]
 ---
 
 # <Component name>
@@ -151,12 +190,11 @@ uses: [data/leave-request]
 <What it shows, in one sentence.>
 
 ## Shows
-- Requester name and photo
-- Dates and number of working days
-- Status as a coloured label: pending (grey), approved (green), rejected (red)
+- Guests who are going, then maybe, each with their name and note
+- A count at the top: "6 going, 2 maybe"
 
 ## Variants *(optional)*
-- Compact: name and dates only, used on the calendar.
+- Compact: names only, used on the host's list of dinners.
 ```
 
 ---
@@ -168,18 +206,22 @@ uses: [data/leave-request]
 type: integration
 ---
 
-# <Email / Auth / Payments …>
+# <Email / Sign-in / Payments …>
 
 <What the app uses this for.>
 
-## Decision
-<a name="decision"></a>
-- **When**: a request is approved or rejected.
-- **To**: the requester.
-- **Says**: the decision, the dates, and the manager's reason if any.
+## New reply
+<a name="new-reply"></a>
+- **When**: a guest replies or changes their reply.
+- **To**: the host.
+- **Says**: who replied, their answer and their note.
+
+## Reminder
+- **When**: the day before the dinner.
+- **To**: guests who said going or maybe.
 
 ## Limits *(optional)*
-- No more than one email per request per day.
+- At most one reply email per guest per hour; later changes are batched.
 ```
 
 Give each event or message its own heading so features can link to it with `#anchor`.
@@ -201,8 +243,8 @@ type: tech
 - Tests: Vitest, one test file per feature doc, named after it
 
 ## Mapping *(optional)*
-- data/leave-request → table `leave_requests`
-- features/approve-request → `src/features/approve-request.ts`
+- data/rsvp → table `rsvps`
+- features/rsvp → `src/features/rsvp.ts`
 ```
 
 `.tech/` is for whoever reads code. Keep it terse. The mapping section helps you find the code for a doc quickly; keep it updated when you create files.

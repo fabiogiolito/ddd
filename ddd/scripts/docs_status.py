@@ -6,6 +6,8 @@ Commands
   diff PATH      Line diff of one doc against its last applied version.
   mark-applied   Record the current docs as built (all, or only the paths given).
   restore PATH   Put one doc back to its last applied version.
+  roadmap        Progress per phase in docs/roadmap.md, mismatches with feature status.
+  next           The next roadmap item to work on.
 
 State lives inside docs/: .state.json (a hash per doc) and .state/ (a copy of each
 doc as last applied). Both should be committed with the project if it uses git.
@@ -24,6 +26,11 @@ STATE_FILE = ".state.json"
 STATE_DIR = ".state"
 LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 REL_KEYS = ("uses", "shown-on")
+PLAN_STATUSES = ("idea", "planned", "in-progress")
+STATUSES = PLAN_STATUSES + ("done",)
+ROADMAP = "roadmap"
+UNSCHEDULED = ("ideas", "backlog")
+ITEM_RE = re.compile(r"^\s*[-*]\s+\[( |x|X)\]\s+(.*)$")
 
 
 def spec_dir(root):
@@ -78,6 +85,25 @@ def parse_refs(text):
     return {r.removesuffix(".md") for r in refs if r}
 
 
+def frontmatter(text):
+    """Simple key: value pairs from the frontmatter (lists are left as raw text)."""
+    out = {}
+    if text.startswith("---"):
+        end = text.find("\n---", 3)
+        if end != -1:
+            for line in text[3:end].splitlines():
+                m = re.match(r"^([\w-]+):\s*(.*)$", line)
+                if m:
+                    out[m.group(1)] = m.group(2).strip().strip("'\"")
+    return out
+
+
+def doc_status(path):
+    """Feature status from frontmatter, or None for docs that don't track one."""
+    st = frontmatter(path.read_text(encoding="utf-8")).get("status", "").lower()
+    return st or None
+
+
 def build_graph(docs):
     out = {d: parse_refs(p.read_text(encoding="utf-8")) for d, p in docs.items()}
     back = {d: set() for d in docs}
@@ -108,9 +134,12 @@ def compute(root):
         if hit:
             impact[d] = sorted(hit)
     broken = sorted({(d, r) for d, refs in out.items() for r in refs if r not in docs})
+    plan_only = sorted(d for d in set(added) | set(changed)
+                       if d == ROADMAP or doc_status(docs[d]) in PLAN_STATUSES)
     return {
         "initialized": state is not None,
         "added": added, "changed": changed, "removed": removed,
+        "plan_only": plan_only,
         "impact": impact,
         "broken_links": [{"in": d, "to": r} for d, r in broken],
         "doc_count": len(docs),
@@ -128,11 +157,17 @@ def cmd_status(args):
     elif not (r["added"] or r["changed"] or r["removed"]):
         print(f"No changes since last apply ({r['doc_count']} docs).")
     else:
+        plan = set(r["plan_only"])
         for label, key in (("Added", "added"), ("Changed", "changed"), ("Removed", "removed")):
-            if r[key]:
+            items = [d for d in r[key] if d not in plan]
+            if items:
                 print(f"{label}:")
-                for d in r[key]:
+                for d in items:
                     print(f"  {d}")
+        if plan:
+            print("Plan only (not built yet, no code to change):")
+            for d in r["plan_only"]:
+                print(f"  {d}")
         if r["impact"]:
             print("May be affected:")
             for d, hits in r["impact"].items():
@@ -199,6 +234,112 @@ def cmd_restore(args):
     print(f"Restored {rel} to its last applied version.")
 
 
+def parse_roadmap(spec):
+    f = spec / (ROADMAP + ".md")
+    if not f.exists():
+        return None
+    phases, cur = [], None
+    for line in f.read_text(encoding="utf-8").splitlines():
+        h = re.match(r"^##\s+(.*)$", line)
+        if h:
+            title = h.group(1).strip()
+            cur = {"title": title, "items": [],
+                   "scheduled": not title.lower().startswith(UNSCHEDULED)}
+            phases.append(cur)
+            continue
+        m = ITEM_RE.match(line)
+        if m and cur is not None:
+            text = m.group(2).strip()
+            link = LINK_RE.search(text)
+            cur["items"].append({"checked": m.group(1) != " ", "text": text,
+                                 "doc": link.group(1).strip() if link else None})
+    return phases
+
+
+def roadmap_report(root):
+    spec = spec_dir(root)
+    docs = list_docs(spec)
+    phases = parse_roadmap(spec)
+    if phases is None:
+        return None
+    statuses = {d: doc_status(p) for d, p in docs.items()}
+    issues, listed, nxt = [], set(), None
+    for ph in phases:
+        for it in ph["items"]:
+            d = it["doc"]
+            if d:
+                listed.add(d)
+                if d not in docs:
+                    issues.append(f"{d}: on the roadmap but no such doc")
+                    it["status"] = None
+                    continue
+                st = it["status"] = statuses[d]
+                if it["checked"] and st != "done":
+                    issues.append(f"{d}: checked on the roadmap but status is {st or 'missing'}")
+                if not it["checked"] and st == "done":
+                    issues.append(f"{d}: status is done but not checked on the roadmap")
+            else:
+                it["status"] = "done" if it["checked"] else None
+    for ph in phases:  # an item already in progress comes first
+        for it in ph["items"]:
+            if it.get("status") == "in-progress" and not it["checked"]:
+                nxt = nxt or dict(it, phase=ph["title"])
+    for ph in phases:
+        if not ph["scheduled"]:
+            continue
+        for it in ph["items"]:
+            if not it["checked"]:
+                nxt = nxt or dict(it, phase=ph["title"])
+    for d, st in sorted(statuses.items()):
+        if st and st not in STATUSES:
+            issues.append(f"{d}: unknown status '{st}' (use {', '.join(STATUSES)})")
+        if st in ("planned", "in-progress") and d not in listed:
+            issues.append(f"{d}: status is {st} but it is not on the roadmap")
+    return {"phases": phases, "next": nxt, "issues": issues}
+
+
+def cmd_roadmap(args):
+    r = roadmap_report(args.root)
+    if r is None:
+        sys.exit("No docs/roadmap.md yet.")
+    if args.json:
+        print(json.dumps(r, indent=2))
+        return
+    for ph in r["phases"]:
+        items = ph["items"]
+        if not items:
+            continue
+        done = sum(1 for it in items if it["checked"])
+        tail = f"{done}/{len(items)} done" if ph["scheduled"] else f"{len(items)} unscheduled"
+        print(f"{ph['title']}: {tail}")
+        for it in items:
+            mark = "x" if it["checked"] else ("~" if it.get("status") == "in-progress" else " ")
+            label = it["doc"] or it["text"]
+            st = f" ({it['status']})" if it["doc"] and it.get("status") not in (None, "done") else ""
+            print(f"  [{mark}] {label}{st}")
+    nx = r["next"]
+    print(f"Next: {(nx['doc'] or nx['text'])} ({nx['phase']})" if nx else "Next: nothing left in scheduled phases.")
+    if r["issues"]:
+        print("Out of sync:")
+        for i in r["issues"]:
+            print(f"  {i}")
+
+
+def cmd_next(args):
+    r = roadmap_report(args.root)
+    if r is None:
+        sys.exit("No docs/roadmap.md yet.")
+    nx = r["next"]
+    if args.json:
+        print(json.dumps(nx, indent=2))
+    elif not nx:
+        print("Nothing left in scheduled phases.")
+    else:
+        where = f"docs/{nx['doc']}.md" if nx["doc"] else "(task with no doc)"
+        st = nx.get("status") or "not started"
+        print(f"{nx['phase']}: {nx['doc'] or nx['text']}\n  {where}, status: {st}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", default=".", help="project root (the folder that holds docs/)")
@@ -207,8 +348,10 @@ def main():
     d = sub.add_parser("diff"); d.add_argument("path"); d.set_defaults(fn=cmd_diff)
     m = sub.add_parser("mark-applied"); m.add_argument("paths", nargs="*"); m.set_defaults(fn=cmd_mark)
     r = sub.add_parser("restore"); r.add_argument("path"); r.set_defaults(fn=cmd_restore)
+    rm = sub.add_parser("roadmap"); rm.add_argument("--json", action="store_true"); rm.set_defaults(fn=cmd_roadmap)
+    n = sub.add_parser("next"); n.add_argument("--json", action="store_true"); n.set_defaults(fn=cmd_next)
     # allow --root after the subcommand too
-    for p in (s, d, m, r):
+    for p in (s, d, m, r, rm, n):
         p.add_argument("--root", default=argparse.SUPPRESS)
     args = ap.parse_args()
     args.fn(args)

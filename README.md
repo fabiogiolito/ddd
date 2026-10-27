@@ -17,6 +17,7 @@ Because every change lands in the docs first, teammates can follow new features 
 ```
 docs/
 ├── app.md            # what the app is, who uses it, roles, glossary
+├── roadmap.md        # phases and the order features get built in
 ├── data/             # what the app remembers
 ├── features/         # what the app does
 ├── pages/            # what people see
@@ -31,15 +32,31 @@ docs/
 
 Each feature doc ends with Given / When / Then acceptance criteria, which become tests.
 
+### Planning and the roadmap
+
+Each feature doc has a `status`: `idea`, `planned`, `in-progress` or `done`. `docs/roadmap.md` lays features out in phases, as checklists in priority order, with an `## Ideas` section for unscheduled items:
+
+```markdown
+## Phase 1: Core
+Goal: a host can create a dinner and guests can reply.
+- [x] [[features/create-dinner]]
+- [ ] [[features/rsvp]]
+- [ ] Set up a sending domain for email
+```
+
+Plan a whole set of features without building anything, then have the agent take them one at a time: it marks each `in-progress`, builds it through the usual docs → plan → code loop, marks it `done`, checks it off, and stops for review. At the end of a phase it stops so you can try the app before the next one.
+
 ### Noticing doc edits
 
 `ddd/scripts/docs_status.py` compares `docs/` against the last applied build, with no file watcher or server:
 
 ```bash
 python ddd/scripts/docs_status.py status        # what changed, what it affects, broken links
-python ddd/scripts/docs_status.py diff features/approve-request
+python ddd/scripts/docs_status.py diff features/rsvp
 python ddd/scripts/docs_status.py mark-applied  # after code and tests match the docs
-python ddd/scripts/docs_status.py restore features/approve-request
+python ddd/scripts/docs_status.py restore features/rsvp
+python ddd/scripts/docs_status.py roadmap       # progress per phase, anything out of sync
+python ddd/scripts/docs_status.py next          # the next item to work on
 ```
 
 It stores a hash and a copy of each doc as last built in `docs/.state.json` and `docs/.state/`. Standard-library Python only.
@@ -53,6 +70,9 @@ It stores a hash and a copy of each doc as last built in `docs/.state.json` and 
 ## Use
 
 - `/ddd` reports what changed in the docs since the last build.
+- `/ddd plan <idea>` writes planned feature docs and a phased roadmap, without building.
+- `/ddd next` builds the next roadmap item and marks it done.
+- `/ddd roadmap` shows progress per phase.
 - `/ddd <request>` starts an app, applies a doc edit, or makes a change, following the docs-first workflow.
 
 ## Contents
