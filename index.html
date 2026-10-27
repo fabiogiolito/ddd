@@ -102,29 +102,32 @@ td:first-child{white-space:nowrap;padding-right:20px}
 @media (max-width:640px){.cols{grid-template-columns:1fr;gap:0}}
 
 /* diff comparison */
-.cmp{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);margin-top:16px}
-.cmp .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
-.cmp .head b{font-weight:600;font-size:15px}
-.cmp .head span{font:12px "Geist Mono",monospace;color:var(--muted)}
-.cmp .body{display:grid;grid-template-columns:290px 1fr}
-.cmp .files{border-right:1px solid var(--line);padding:10px 8px;font:12.5px/1 "Geist Mono",monospace}
-.cmp .files div{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;border-radius:6px;white-space:nowrap}
-.cmp .files div.on{background:var(--hl);font-weight:500}
-.cmp .files i{font-style:normal;color:var(--faint);font-weight:400}
-.cmp .diff{min-width:0}
-.cmp .diff .fn{font:12px "Geist Mono",monospace;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--line)}
-.cmp .diff pre{padding:10px 0 14px;font-size:12.5px;line-height:1.65}
-.cmp .diff pre span{display:block;padding:0 16px;white-space:pre}
-.cmp .diff .hk{color:var(--faint)}
-.cmp .diff .d{color:var(--faint);background:var(--code)}
-.cmp .diff .a{background:var(--hl);color:var(--ink)}
-.cmp .diff.prose pre span{white-space:pre-wrap;padding-left:calc(16px + 4ch);text-indent:-4ch}
-.cmp .note{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
-.cmp .note b{color:var(--ink);font-weight:600}
+.duo{display:flex;gap:16px;margin-top:20px;align-items:flex-start}
+.pane{flex:1 1 0;min-width:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);transition:flex-grow .5s cubic-bezier(.4,0,.2,1),border-color .2s}
+.pane.big{flex-grow:2}
+.pane:not(.big){cursor:pointer}
+.pane:not(.big):hover{border-color:var(--faint)}
+.pane:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pane .head{padding:12px 16px;border-bottom:1px solid var(--line)}
+.pane .head b{display:block;font-weight:600;font-size:15px}
+.pane .head span{display:block;font:12px "Geist Mono",monospace;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pane pre{padding:10px 0 14px;font-size:12.5px;line-height:1.65;overflow:hidden}
+.pane pre span{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:0 16px 0 calc(16px + 2ch);text-indent:-2ch}
+.pane.doc pre span{padding-left:calc(16px + 4ch);text-indent:-4ch}
+.pane .hk{color:var(--faint)}
+.pane .d{color:var(--faint);background:var(--code)}
+.pane .a{background:var(--hl);color:var(--ink)}
+.pane .note{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.pane .note b{color:var(--ink);font-weight:600}
+.pane .hint{display:none;font:12px "Geist Mono",monospace;color:var(--faint);margin-top:6px}
+.pane:not(.big) .hint{display:block}
 @media (max-width:700px){
-  .cmp .body{grid-template-columns:1fr}
-  .cmp .files{border-right:0;border-bottom:1px solid var(--line)}
+  .duo{flex-direction:column}
+  .pane,.pane.big{flex:none;width:100%;cursor:default}
+  .pane .hint{display:none!important}
 }
+@media (prefers-reduced-motion:reduce){.pane{transition:none}}
+
 footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);font-size:14px}
 </style>
 </head>
@@ -437,38 +440,17 @@ understand what the app does.</span>
   <h2>The same change, two ways to read it</h2>
   <p>Here is the plus-one change from the session above, as a teammate would review it. Both come from the same update. The code diff is still there for whoever wants it; the doc diff is the one anyone can read.</p>
 
-  <div class="cmp">
-    <div class="head"><b>Code diff</b><span>5 files · +38 −7</span></div>
-    <div class="body">
-      <div class="files">
-        <div class="on">src/features/rsvp.ts <i>+8 −2</i></div>
-        <div>src/db/migrations/0007.sql <i>+3</i></div>
-        <div>src/views/dinner.html <i>+9 −2</i></div>
-        <div>src/views/guest-list.html <i>+6 −3</i></div>
-        <div>tests/rsvp.test.ts <i>+12</i></div>
-      </div>
-      <div class="diff">
-        <div class="fn">src/features/rsvp.ts</div>
-<pre><span class="hk">@@ -18,14 +18,23 @@ export async function reply(db, dinnerId, input) {</span><span>   const dinner = await db.dinners.get(dinnerId);</span><span>   if (Date.now() &gt;= dinner.startsAt) throw new ClosedError();</span><span class="d">-  const taken = await db.rsvps.count({ dinnerId, answer: 'going' });</span><span class="d">-  const status = taken &lt; dinner.seats ? 'going' : 'waitlist';</span><span class="a">+  if (input.plusOne &amp;&amp; input.answer !== 'going') {</span><span class="a">+    throw new ValidationError('plus_one_requires_going');</span><span class="a">+  }</span><span class="a">+  const rows = await db.rsvps.list({ dinnerId, answer: 'going' });</span><span class="a">+  const taken = rows.reduce((n, r) =&gt; n + (r.plusOne ? 2 : 1), 0);</span><span class="a">+  const need = input.plusOne ? 2 : 1;</span><span class="a">+  const status = taken + need &lt;= dinner.seats ? 'going' : 'waitlist';</span><span>   await db.rsvps.upsert({</span><span>     dinnerId,</span><span>     guestId: input.guestId,</span><span>     answer: status,</span><span>     note: input.note ?? null,</span><span class="a">+    plusOne: input.plusOne?.trim() || null,</span><span>   });</span></pre>
-      </div>
-    </div>
-    <div class="note">To know what changed for guests, you have to work it out from a <code>reduce</code> and a comparison. One rule is easy to miss: if there's a seat for the guest but not for their plus-one, both go on the waitlist.</div>
-  </div>
-
-  <div class="cmp">
-    <div class="head"><b>Doc diff</b><span>3 files · +6 −1</span></div>
-    <div class="body">
-      <div class="files">
-        <div class="on">features/rsvp.md <i>+3 −1</i></div>
-        <div>data/rsvp.md <i>+1</i></div>
-        <div>components/guest-list.md <i>+2</i></div>
-      </div>
-      <div class="diff prose">
-        <div class="fn">docs/features/rsvp.md</div>
+  <div class="duo">
+    <div class="pane doc big" role="button" tabindex="0" aria-expanded="true">
+      <div class="head"><b>Doc diff</b><span>docs/features/rsvp.md · 3 files changed, +6 −1</span></div>
 <pre><span class="hk">## Rules</span><span>  - Replies close when the dinner starts.</span><span class="d">- - Each invite is for one person.</span><span class="a">+ - Guests who are going can bring one plus-one.</span><span class="a">+ - A plus-one takes a seat. If there's room for the guest but not the plus-one, both join the waitlist.</span><span>  - If the dinner is full, new "going" replies join a waitlist.</span><span> </span><span class="hk">## Acceptance criteria</span><span class="a">+ - Given a guest going with a plus-one, then "seats left" drops by two.</span></pre>
-      </div>
+      <div class="note"><b>The rule is the diff.</b> Anyone on the team can read what changed, check it's what they wanted, and comment on a sentence, without knowing the codebase.<span class="hint">Click to expand</span></div>
     </div>
-    <div class="note"><b>The rule is the diff.</b> Anyone on the team can read what changed, check it's what they wanted, and comment on a sentence, without knowing the codebase.</div>
+    <div class="pane code" role="button" tabindex="0" aria-expanded="false">
+      <div class="head"><b>Code diff</b><span>src/features/rsvp.ts · 5 files changed, +38 −7</span></div>
+<pre><span class="hk">@@ -18,14 +18,23 @@ export async function reply(db, dinnerId, input) {</span><span>  const dinner = await db.dinners.get(dinnerId);</span><span>  if (Date.now() &gt;= dinner.startsAt) throw new ClosedError();</span><span class="d">- const taken = await db.rsvps.count({ dinnerId, answer: 'going' });</span><span class="d">- const status = taken &lt; dinner.seats ? 'going' : 'waitlist';</span><span class="a">+ if (input.plusOne &amp;&amp; input.answer !== 'going') {</span><span class="a">+   throw new ValidationError('plus_one_requires_going');</span><span class="a">+ }</span><span class="a">+ const rows = await db.rsvps.list({ dinnerId, answer: 'going' });</span><span class="a">+ const taken = rows.reduce((n, r) =&gt; n + (r.plusOne ? 2 : 1), 0);</span><span class="a">+ const need = input.plusOne ? 2 : 1;</span><span class="a">+ const status = taken + need &lt;= dinner.seats ? 'going' : 'waitlist';</span><span>  await db.rsvps.upsert({</span><span>    dinnerId,</span><span>    guestId: input.guestId,</span><span>    answer: status,</span><span>    note: input.note ?? null,</span><span class="a">+   plusOne: input.plusOne?.trim() || null,</span><span>  });</span></pre>
+      <div class="note">To know what changed for guests, you have to work it out from a <code>reduce</code> and a comparison. One rule is easy to miss: if there's a seat for the guest but not for their plus-one, both go on the waitlist.<span class="hint">Click to expand</span></div>
+    </div>
   </div>
 </section>
 
@@ -574,6 +556,12 @@ understand what the app does.</span>
   var tabs=document.querySelectorAll('.tree button');
   var path=document.getElementById('fpath');
   var names={app:'docs/app.md',roadmap:'docs/roadmap.md',data:'docs/data/rsvp.md',feature:'docs/features/rsvp.md',page:'docs/pages/dinner.md',email:'docs/integrations/email.md',tech:'docs/.tech/stack.md'};
+  var panes=document.querySelectorAll('.pane');
+  function grow(p){panes.forEach(function(o){var on=o===p;o.classList.toggle('big',on);o.setAttribute('aria-expanded',on?'true':'false')})}
+  panes.forEach(function(p){
+    p.addEventListener('click',function(){if(!p.classList.contains('big'))grow(p)});
+    p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();grow(p)}});
+  });
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
       tabs.forEach(function(o){o.setAttribute('aria-selected','false')});
